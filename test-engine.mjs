@@ -95,6 +95,9 @@ for (let i = 0; i < N; i++) {
   const t = engine.genKettenaufgabe();
   assert(Number.isInteger(t.answer), "ketten integer result");
   assert(t.answer >= 0 && t.answer <= 9999, `ketten range ${t.answer}`);
+  assert(Array.isArray(t.steps) && t.steps.length >= 2, "ketten must expose >=2 steps for audio pacing");
+  assert(t.steps[t.steps.length - 1].result === t.answer, "ketten last step result must equal final answer");
+  t.steps.forEach((s) => assert(Number.isInteger(s.result) && typeof s.clause === "string" && s.clause.length > 5, "ketten step shape"));
 }
 
 for (let i = 0; i < N; i++) {

@@ -56,6 +56,14 @@
   }
   header.top h1 { font-size: 22px; margin: 0; font-weight: 800; color: var(--ink); }
   header.top p { margin: 2px 0 0; font-family: var(--font-hand); font-size: 19px; color: var(--ink-2); }
+  .chaos-toggle-btn {
+    margin-left: auto; font-family: var(--font-display); font-weight: 700; font-size: 13px;
+    padding: 9px 15px; border-radius: 999px; border: 2px solid var(--card-border);
+    background: var(--card); color: var(--ink-2); cursor: pointer; white-space: nowrap;
+    transition: all .15s ease; align-self: center;
+  }
+  .chaos-toggle-btn.active { background: var(--error); border-color: var(--error); color: #fff; }
+  @media (max-width: 560px) { .chaos-toggle-btn { margin-left: 0; } header.top { flex-wrap: wrap; } }
 
   nav.tabs {
     display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap;
@@ -223,6 +231,7 @@
       <h1>Elas Mathearbeit</h1>
       <p>4. Klasse — auf dem Weg zur 1 mit Sternchen</p>
     </div>
+    <button id="chaos-toggle" class="chaos-toggle-btn" title="Freche Kommentare bei den Rückmeldungen an/aus">🎭 Chaos-Modus</button>
   </header>
 
   <nav class="tabs">
@@ -242,7 +251,60 @@
   "use strict";
 
   const STORAGE_KEY = "ela_mathearbeit_v1";
+  const CHAOS_KEY = "ela_mathearbeit_chaos_v1";
   const SVG_NS = "http://www.w3.org/2000/svg";
+
+  // ---------- Chaos-Modus: freche, selbst ausgedachte Kommentare (kein Zitat, keine Stimm-Imitation) ----------
+  let chaosMode = false;
+  try { chaosMode = localStorage.getItem(CHAOS_KEY) === "1"; } catch (e) {}
+  const CHAOS_CORRECT = [
+    "Boom! 💥 Richtig — ich hab schon geklatscht, bevor du fertig warst.",
+    "Treffer! Ich wollte gerade 'schwierige Aufgabe' sagen, aber du warst schneller.",
+    "Sauber! Mathe-Punkte für dich, Kompliment-Punkte für mich, weil ich sie verteile.",
+    "Volltreffer! Selbst mein Algorithmus ist beeindruckt, und der beeindruckt sich sonst nie.",
+    "Richtig! Ich flüster's nicht, ich SCHREI's: RICHTIG!",
+    "Bingo! Wenn Rechnen eine Sportart wäre, hättest du gerade einen Pokal gewonnen.",
+    "Perfekt gelöst. Ich wäre stolz, wenn ich Gefühle hätte. Ich tu jetzt einfach so.",
+    "Klick — richtig! Das war so sauber, das schreib ich mir hinter die Ohren. Falls ich welche hätte.",
+  ];
+  const CHAOS_WRONG = [
+    "Autsch. Aber ich hab schon Schlimmeres überlebt — probier's nochmal.",
+    "Nope, aber knapp daneben zählt bei mir trotzdem als 'mutig versucht'.",
+    "Fast! Naja, nicht wirklich fast, aber ich will nett sein. Nochmal!",
+    "Kleiner Ausrutscher. Passiert sogar Rechen-Profis wie... anderen. Nicht mir. Anderen.",
+    "Das war nicht die Zahl, auf die ich gehofft hatte. Rechenweg checken, dann klappt's.",
+    "Noch nicht ganz — aber Fehler sind nur Übungsrunden mit Umweg.",
+    "Knapp verpasst! Zum Glück gibt's hier keine Strafrunden, nur die nächste Aufgabe.",
+  ];
+  function chaosLine(pool) { return pool[Math.floor(Math.random() * pool.length)]; }
+  function feedbackHeadline(correct) {
+    if (!chaosMode) return correct ? "✓ Richtig!" : "✗ Noch nicht ganz.";
+    return (correct ? "✓ " : "✗ ") + chaosLine(correct ? CHAOS_CORRECT : CHAOS_WRONG);
+  }
+  const CHAOS_KOPF_INTRO = [
+    "Achtung, Ohren auf: gleich wird gerechnet, und ich lese vor, als gäb's morgen keine Mathearbeit mehr.",
+    "Los geht's! Ich lese vor, du rechnest, und danach tun wir beide so, als wäre das leicht gewesen.",
+    "Kopfrechnen-Zeit! Stift bereit, Kopf an — und keine Sorge, ich rede langsamer als ich denke.",
+  ];
+  function chaosKopfOutro(mode, correctCount, total) {
+    if (mode !== "practice") return chaosLine([
+      "Geschafft! Das Papier ist jetzt voller als mein Terminkalender.",
+      "Fertig! Ich brauch jetzt eine Pause. Du bestimmt auch.",
+      "Das war's — Stift beiseite, Kopf hat genug gerechnet für heute.",
+    ]);
+    const ratio = correctCount / total;
+    if (ratio >= 0.9) return "Fast alles richtig! Ich hab kurz gezweifelt, ob du schummelst — aber nein, das war einfach gut.";
+    if (ratio >= 0.7) return "Stark! Ein paar Wackler, aber insgesamt: sauber gerechnet.";
+    if (ratio >= 0.5) return "Die Hälfte und mehr — nicht schlecht, aber wir schauen uns die Wackler nochmal an.";
+    return "Okay, das war holprig. Kein Drama — nochmal üben, dann sieht's schon anders aus.";
+  }
+  function chaosPruefungHeadline(correctCount, total) {
+    const ratio = correctCount / total;
+    if (ratio >= 0.9) return "Respekt. Selbst ich hätte nicht so schnell gerechnet.";
+    if (ratio >= 0.7) return "Richtig stark! Ein paar Stellen zum Nachschärfen, sonst top.";
+    if (ratio >= 0.5) return "Solide Basis — jetzt die Wackler gezielt angehen.";
+    return "Kein Beinbruch. Einmal tief durchatmen, dann nochmal gezielt üben.";
+  }
 
   const CATEGORIES = [
     { id: "stellenwert", group: "Zahlen bis 10 000", title: "Stellenwerttafel", desc: "Zahlen aus T/H/Z/E zusammensetzen und zerlegen", icon: "🔢" },
@@ -316,6 +378,15 @@
     return el;
   }
   function fmtNum(n) { return String(n); }
+
+  // ---------- Chaos-Modus Toggle ----------
+  const chaosToggleBtn = document.getElementById("chaos-toggle");
+  chaosToggleBtn.classList.toggle("active", chaosMode);
+  chaosToggleBtn.addEventListener("click", () => {
+    chaosMode = !chaosMode;
+    chaosToggleBtn.classList.toggle("active", chaosMode);
+    try { localStorage.setItem(CHAOS_KEY, chaosMode ? "1" : "0"); } catch (e) {}
+  });
 
   // ---------- Router ----------
   let currentView = "home";
@@ -399,7 +470,7 @@
       feedbackSlot.innerHTML = "";
       feedbackSlot.appendChild(
         h("div", { class: "feedback " + (correct ? "correct" : "wrong") }, [
-          correct ? "✓ Richtig!" : "✗ Noch nicht ganz.",
+          feedbackHeadline(correct),
           explain ? h("div", { class: "explain", html: explain }) : null,
         ])
       );
@@ -1027,27 +1098,61 @@
   let kopfState = null;
   let voicesReady = false;
   let germanVoice = null;
+  function pickBestGermanVoice(voices) {
+    const byLang = (lang) => voices.filter((v) => v.lang === lang);
+    const rank = (list) =>
+      list.find((v) => /google/i.test(v.name)) ||
+      list.find((v) => !v.localService) ||
+      list.find((v) => /(anna|petra|markus|helena)/i.test(v.name)) ||
+      list[0] ||
+      null;
+    return (
+      rank(byLang("de-DE")) ||
+      rank(voices.filter((v) => v.lang && v.lang.startsWith("de"))) ||
+      null
+    );
+  }
   function ensureVoices() {
     function pick() {
       const voices = speechSynthesis.getVoices();
-      germanVoice = voices.find((v) => v.lang === "de-DE") || voices.find((v) => v.lang && v.lang.startsWith("de")) || null;
-      voicesReady = true;
+      if (voices.length) {
+        germanVoice = pickBestGermanVoice(voices);
+        voicesReady = true;
+      }
     }
     pick();
-    if (!voicesReady || !germanVoice) speechSynthesis.addEventListener("voiceschanged", pick, { once: true });
+    if (!voicesReady) {
+      speechSynthesis.addEventListener("voiceschanged", pick, { once: true });
+      setTimeout(pick, 300);
+    }
   }
   if (typeof speechSynthesis !== "undefined") ensureVoices();
 
-  function speak(text, onend) {
-    if (typeof speechSynthesis === "undefined") { onend && onend(); return; }
-    speechSynthesis.cancel();
+  // Chrome/WebKit stottern oder brechen bei sehr langen Utterances ab — darum wird
+  // an Satzenden aufgeteilt und nacheinander mit kurzer Pause gesprochen statt als
+  // ein langer Block. Das macht die Stimme spürbar klarer und verständlicher.
+  function speakOne(text, onend) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "de-DE";
     if (germanVoice) u.voice = germanVoice;
-    u.rate = 0.92;
+    u.rate = 0.88;
+    u.pitch = 1;
+    u.volume = 1;
     u.onend = onend;
     u.onerror = onend;
     speechSynthesis.speak(u);
+  }
+  function speak(text, onend) {
+    if (typeof speechSynthesis === "undefined") { onend && onend(); return; }
+    speechSynthesis.cancel();
+    const chunks = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+    let i = 0;
+    function next() {
+      if (i >= chunks.length) { onend && onend(); return; }
+      const chunk = chunks[i++];
+      speakOne(chunk, () => setTimeout(next, i < chunks.length ? 180 : 0));
+    }
+    next();
   }
   function stopKopfAudio() {
     if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
@@ -1102,13 +1207,32 @@
     app.innerHTML = "";
     const card = h("div", { class: "task-card kopf-stage" });
     app.appendChild(card);
-    playKopfStep(card);
+    if (chaosMode) {
+      card.appendChild(h("div", { class: "kopf-progress" }, ["Los geht's..."]));
+      const orb = h("div", { class: "kopf-orb" }, ["🎭"]);
+      card.appendChild(orb);
+      speak(chaosLine(CHAOS_KOPF_INTRO), () => playKopfStep(card));
+    } else {
+      playKopfStep(card);
+    }
+  }
+
+  const KETTE_STEP_PAUSE_MS = 3500;
+  function speakSteps(steps, i, orb, onAllDone) {
+    const isLast = i === steps.length - 1;
+    const text = i === 0 ? steps[i].clause : `Und jetzt: ${steps[i].clause}`;
+    speak(text, () => {
+      if (isLast) { onAllDone(); return; }
+      orb.textContent = "🤔";
+      setTimeout(() => { orb.textContent = "🔊"; speakSteps(steps, i + 1, orb, onAllDone); }, KETTE_STEP_PAUSE_MS);
+    });
   }
 
   function playKopfStep(card) {
     const st = kopfState;
     if (st.index >= st.tasks.length) { renderKopfSummary(card); return; }
     const task = st.tasks[st.index];
+    const isKette = task.category === "kopf_kette" && Array.isArray(task.steps) && task.steps.length > 1;
     card.innerHTML = "";
     card.appendChild(h("div", { class: "kopf-progress" }, [`Aufgabe ${st.index + 1} von ${st.tasks.length}`]));
     const orb = h("div", { class: "kopf-orb" }, ["🔊"]);
@@ -1116,7 +1240,12 @@
     const controls = h("div", { class: "btn-row" });
     const repeatBtn = h("button", { class: "btn secondary" }, ["🔁 Wiederholen"]);
     const stopBtn = h("button", { class: "btn secondary" }, ["⏹ Abbrechen"]);
-    repeatBtn.addEventListener("click", () => speak(task.spoken));
+    function playAudio(onAllDone) {
+      orb.textContent = "🔊";
+      if (isKette) speakSteps(task.steps, 0, orb, onAllDone);
+      else speak(task.spoken, onAllDone);
+    }
+    repeatBtn.addEventListener("click", () => playAudio(() => {}));
     stopBtn.addEventListener("click", () => { stopKopfAudio(); renderKopfSetup(); });
     controls.appendChild(repeatBtn); controls.appendChild(stopBtn);
     card.appendChild(controls);
@@ -1125,7 +1254,7 @@
     const practiceSlot = h("div", { id: "practice-slot" });
     card.appendChild(practiceSlot);
 
-    speak(task.spoken, () => {
+    playAudio(() => {
       orb.classList.add("waiting");
       orb.textContent = "✍️";
       if (kopfState.mode === "practice") {
@@ -1155,6 +1284,10 @@
     const st = kopfState;
     card.innerHTML = "";
     card.appendChild(h("h2", {}, ["Fertig! 🎉"]));
+    if (chaosMode) {
+      const correctCount = st.mode === "practice" ? st.results.filter((r) => r.given === r.task.answer).length : null;
+      card.appendChild(h("p", { style: "font-family:var(--font-hand);font-size:19px;color:var(--ink-2);" }, [chaosKopfOutro(st.mode, correctCount, st.results.length)]));
+    }
     if (st.mode === "practice") {
       const correctCount = st.results.filter((r) => r.given === r.task.answer).length;
       card.appendChild(h("p", { style: "font-size:18px;font-weight:700;" }, [`${correctCount} von ${st.results.length} richtig`]));
@@ -1229,7 +1362,7 @@
       const result = renderer.check(task, ctx);
       const correct = result === true || (result && result.correct);
       feedbackSlot.innerHTML = "";
-      feedbackSlot.appendChild(h("div", { class: "feedback " + (correct ? "correct" : "wrong") }, [correct ? "✓ Richtig!" : "✗ Noch nicht.", result.explain ? h("div", { class: "explain", html: result.explain }) : null]));
+      feedbackSlot.appendChild(h("div", { class: "feedback " + (correct ? "correct" : "wrong") }, [feedbackHeadline(correct), result.explain ? h("div", { class: "explain", html: result.explain }) : null]));
       st.results.push({ catId, correct });
       recordResult(catId, correct);
       checkBtn.style.display = "none";
@@ -1250,6 +1383,7 @@
     const box = h("div", { class: "task-card" });
     box.appendChild(h("h2", {}, ["Auswertung"]));
     box.appendChild(h("p", { style: "font-size:22px;font-weight:800;" }, [`${correctCount} von ${st.results.length} richtig`]));
+    if (chaosMode) box.appendChild(h("p", { style: "font-family:var(--font-hand);font-size:19px;color:var(--ink-2);margin-top:-8px;" }, [chaosPruefungHeadline(correctCount, st.results.length)]));
     const byCat = {};
     st.results.forEach((r) => {
       if (!byCat[r.catId]) byCat[r.catId] = { correct: 0, total: 0 };

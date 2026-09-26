@@ -252,27 +252,29 @@ function genTeilen() {
 }
 
 // ---------- Kettenaufgaben ----------
-function genKettenaufgabe() {
+// Jedes Template liefert `steps`: eine Liste von Teilsätzen mit dem Zwischenergebnis
+// NACH diesem Schritt. Für die Text-Übung wird daraus ein Fließtext zusammengesetzt;
+// für die Audio-Abfrage kann jeder Schritt einzeln vorgelesen werden (mit Pause dazwischen),
+// damit das Kind nicht die ganze Kette auf einmal im Kopf behalten muss.
+function genKettenaufgabeSteps() {
   const templates = [
     () => {
       const A = randInt(1000, 6000);
       const B = randInt(500, Math.min(4000, 9999 - A));
       const C = randInt(0, A + B);
-      const result = A + B - C;
-      return {
-        text: `Addiere zur Zahl ${A} die Zahl ${B}. Subtrahiere vom Ergebnis die Zahl ${C}.`,
-        result,
-      };
+      return [
+        { clause: `Addiere zur Zahl ${A} die Zahl ${B}.`, result: A + B },
+        { clause: `Subtrahiere vom Ergebnis die Zahl ${C}.`, result: A + B - C },
+      ];
     },
     () => {
       const A = randInt(2000, 9999);
       const B = randInt(500, A);
       const C = randInt(500, 9999 - (A - B));
-      const result = A - B + C;
-      return {
-        text: `Subtrahiere die Zahl ${B} von der Zahl ${A}. Addiere zum Ergebnis die Zahl ${C}.`,
-        result,
-      };
+      return [
+        { clause: `Subtrahiere die Zahl ${B} von der Zahl ${A}.`, result: A - B },
+        { clause: `Addiere zum Ergebnis die Zahl ${C}.`, result: A - B + C },
+      ];
     },
     () => {
       const A = randInt(500, 3000);
@@ -280,31 +282,34 @@ function genKettenaufgabe() {
       const C = randInt(20, 500);
       const sum = A + B + C;
       const D = randInt(sum, 9999);
-      const result = D - sum;
-      return {
-        text: `Addiere die Zahlen ${A}, ${B} und ${C}. Subtrahiere das Ergebnis von der Zahl ${D}.`,
-        result,
-      };
+      return [
+        { clause: `Addiere die Zahlen ${A}, ${B} und ${C}.`, result: sum },
+        { clause: `Subtrahiere das Ergebnis von der Zahl ${D}.`, result: D - sum },
+      ];
     },
     () => {
       const Bhalf = randInt(200, 3000);
       const B = Bhalf * 2;
       const A = randInt(Bhalf, 9999 - 2000);
       const C = randInt(500, Math.max(501, 9999 - (A - Bhalf)));
-      const result = A - Bhalf + C;
-      return {
-        text: `Subtrahiere die Hälfte von ${B} von der Zahl ${A}. Addiere zum Ergebnis die Zahl ${C}.`,
-        result,
-      };
+      return [
+        { clause: `Subtrahiere die Hälfte von ${B} von der Zahl ${A}.`, result: A - Bhalf },
+        { clause: `Addiere zum Ergebnis die Zahl ${C}.`, result: A - Bhalf + C },
+      ];
     },
   ];
-  let attempt;
+  let steps;
   let tries = 0;
   do {
-    attempt = choice(templates)();
+    steps = choice(templates)();
     tries++;
-  } while ((attempt.result < 0 || attempt.result > 9999) && tries < 50);
-  return { category: "ketten", prompt: attempt.text, answer: attempt.result };
+  } while ((steps[steps.length - 1].result < 0 || steps[steps.length - 1].result > 9999) && tries < 50);
+  return steps;
+}
+function genKettenaufgabe() {
+  const steps = genKettenaufgabeSteps();
+  const result = steps[steps.length - 1].result;
+  return { category: "ketten", prompt: steps.map((s) => s.clause).join(" "), answer: result, steps };
 }
 
 // ---------- Sachaufgaben ----------
@@ -620,7 +625,7 @@ function genKopfMalGeteilt() {
 }
 function genKopfKette() {
   const t = genKettenaufgabe();
-  return { category: "kopf_kette", spoken: t.prompt, answer: t.answer };
+  return { category: "kopf_kette", spoken: t.prompt, answer: t.answer, steps: t.steps };
 }
 
 function genKopfAufgabe(range) {
@@ -686,6 +691,7 @@ if (typeof module !== "undefined") module.exports = {
   genStreckeZeichnen,
   genRechteckZeichnen,
   genParalleleGeradenZeichnen,
+  genKettenaufgabeSteps,
   columnAdd,
   columnSub,
   genKopfPlusMinus,
