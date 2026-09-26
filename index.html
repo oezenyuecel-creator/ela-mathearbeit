@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Elas Mathearbeit – 4. Klasse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #1b2a4a;
+    --ink-2: #2f4570;
+    --paper: #fbf7ee;
+    --paper-2: #f3ecda;
+    --grid-line: rgba(27, 42, 74, 0.09);
+    --gold: #c8930f;
+    --gold-light: #f0c86e;
+    --gold-bg: #fff6df;
+    --success: #2f9e44;
+    --success-bg: #e6f7e9;
+    --error: #d6433c;
+    --error-bg: #fdeceb;
+    --card: #ffffff;
+    --card-border: rgba(27, 42, 74, 0.12);
+    --shadow: 0 8px 24px rgba(27, 42, 74, 0.10);
+    --font-display: "Lexend", sans-serif;
+    --font-mono: "Space Mono", monospace;
+    --font-hand: "Caveat", cursive;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    color: var(--ink);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 18px 16px 40px; }
+
+  header.top {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 4px 18px;
+  }
+  .star-badge {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; box-shadow: var(--shadow); flex-shrink: 0;
+  }
+  header.top h1 { font-size: 22px; margin: 0; font-weight: 800; color: var(--ink); }
+  header.top p { margin: 2px 0 0; font-family: var(--font-hand); font-size: 19px; color: var(--ink-2); }
+
+  nav.tabs {
+    display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap;
+  }
+  nav.tabs button {
+    font-family: var(--font-display); font-weight: 600; font-size: 14.5px;
+    padding: 10px 16px; border-radius: 999px; border: 2px solid var(--card-border);
+    background: var(--card); color: var(--ink-2); cursor: pointer;
+    transition: all .15s ease;
+  }
+  nav.tabs button.active {
+    background: var(--ink); color: var(--paper); border-color: var(--ink);
+  }
+  nav.tabs button:hover:not(.active) { border-color: var(--gold); }
+
+  .group-title {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--ink-2); font-weight: 700; margin: 26px 2px 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .group-title:first-child { margin-top: 4px; }
+  .group-title .bar { flex: 1; height: 1px; background: var(--card-border); }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .cat-card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 16px;
+    padding: 14px 16px; cursor: pointer; box-shadow: var(--shadow);
+    transition: transform .12s ease, border-color .12s ease;
+    display: flex; flex-direction: column; gap: 6px; position: relative;
+  }
+  .cat-card:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .cat-card .icon-row { display: flex; align-items: center; justify-content: space-between; }
+  .cat-card .icon { font-size: 26px; }
+  .cat-card h3 { margin: 0; font-size: 16px; font-weight: 700; }
+  .cat-card p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.35; }
+  .cat-card .weak-flag {
+    font-size: 11px; font-weight: 700; color: var(--error);
+    background: var(--error-bg); padding: 2px 8px; border-radius: 999px;
+  }
+  .progress-bar { height: 6px; border-radius: 4px; background: var(--paper-2); overflow: hidden; margin-top: 4px; }
+  .progress-bar > div { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+  .mastery-star { position: absolute; top: 10px; right: 14px; font-size: 18px; }
+
+  .practice-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 10px; flex-wrap: wrap;
+  }
+  .back-btn {
+    background: none; border: none; color: var(--ink-2); font-family: var(--font-display);
+    font-weight: 600; cursor: pointer; font-size: 14px; padding: 6px 0;
+  }
+  .streak {
+    font-family: var(--font-mono); font-weight: 700; font-size: 14px;
+    background: var(--gold-bg); color: var(--gold); padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--gold-light);
+  }
+
+  .task-card {
+    background: var(--card); border-radius: 20px; box-shadow: var(--shadow);
+    border: 1px solid var(--card-border); padding: 26px 24px; margin-bottom: 18px;
+  }
+  .task-prompt { font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 18px; }
+  .equation { font-family: var(--font-mono); font-size: 30px; font-weight: 700; text-align: center; margin: 10px 0 20px; letter-spacing: 1px; }
+
+  input[type="number"], input[type="text"] {
+    font-family: var(--font-mono); font-size: 20px; padding: 10px 14px;
+    border: 2px solid var(--card-border); border-radius: 10px; width: 130px;
+    background: var(--paper); color: var(--ink); text-align: center;
+  }
+  input[type="number"]:focus, input[type="text"]:focus { outline: none; border-color: var(--gold); }
+  .input-row { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; margin: 14px 0; }
+  .input-row label { font-size: 13px; color: var(--ink-2); display: block; margin-bottom: 4px; font-weight: 600; }
+
+  .btn {
+    font-family: var(--font-display); font-weight: 700; font-size: 15px;
+    padding: 12px 22px; border-radius: 12px; border: none; cursor: pointer;
+    background: var(--ink); color: var(--paper); transition: transform .1s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.secondary { background: var(--paper-2); color: var(--ink); border: 1px solid var(--card-border); }
+  .btn.gold { background: var(--gold); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: default; transform: none; }
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+
+  .feedback { text-align: center; font-weight: 700; font-size: 16px; padding: 12px; border-radius: 12px; margin-top: 14px; }
+  .feedback.correct { background: var(--success-bg); color: var(--success); }
+  .feedback.wrong { background: var(--error-bg); color: var(--error); }
+  .feedback .explain { font-weight: 500; font-size: 14px; margin-top: 6px; color: var(--ink-2); }
+
+  .chip {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-weight: 700; font-size: 17px;
+    padding: 8px 14px; border-radius: 10px; background: var(--paper-2);
+    border: 2px solid var(--card-border); cursor: pointer; margin: 4px;
+  }
+  .chip.used { opacity: .35; cursor: default; }
+  .chip.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .chip-row { display: flex; flex-wrap: wrap; justify-content: center; }
+  .answer-strip {
+    min-height: 46px; display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin: 14px 0; flex-wrap: wrap;
+  }
+  .answer-strip .slot {
+    font-family: var(--font-mono); font-weight: 700; font-size: 15px;
+    min-width: 60px; padding: 8px 10px; border-radius: 8px; background: var(--gold-bg);
+    border: 2px dashed var(--gold-light); text-align: center; color: var(--gold);
+  }
+
+  .thze-table { margin: 0 auto 18px; border-collapse: collapse; font-family: var(--font-mono); font-size: 20px; }
+  .thze-table th, .thze-table td { border: 1px solid var(--card-border); padding: 8px 14px; text-align: center; }
+  .thze-table th { background: var(--paper-2); font-family: var(--font-display); font-size: 13px; }
+  .thze-table td.op { border: none; font-weight: 700; }
+
+  .malkreuz-row { display: flex; align-items: center; gap: 8px; justify-content: center; margin: 8px 0; font-family: var(--font-mono); font-size: 17px; flex-wrap: wrap; }
+
+  .svg-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
+  svg text { font-family: var(--font-mono); }
+
+  .mc-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  @media (max-width: 480px) { .mc-options { grid-template-columns: 1fr; } }
+  .mc-btn {
+    font-family: var(--font-mono); font-weight: 700; font-size: 15px;
+    padding: 12px; border-radius: 12px; border: 2px solid var(--card-border);
+    background: var(--paper); cursor: pointer; text-align: center;
+  }
+  .mc-btn:hover { border-color: var(--gold); }
+  .mc-btn.correct { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+  .mc-btn.wrong { background: var(--error-bg); border-color: var(--error); color: var(--error); }
+  .mc-btn:disabled { cursor: default; }
+
+  /* Kopfrechnen */
+  .kopf-setup { display: flex; flex-direction: column; gap: 18px; max-width: 480px; margin: 0 auto; }
+  .kopf-setup .opt-group label.group-label { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: block; }
+  .opt-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .opt-pills button {
+    font-family: var(--font-display); font-weight: 600; font-size: 14px;
+    padding: 9px 15px; border-radius: 999px; border: 2px solid var(--card-border);
+    background: var(--card); cursor: pointer;
+  }
+  .opt-pills button.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .kopf-stage { text-align: center; }
+  .kopf-progress { font-family: var(--font-mono); font-size: 14px; color: var(--ink-2); margin-bottom: 10px; }
+  .kopf-orb {
+    width: 130px; height: 130px; border-radius: 50%; margin: 20px auto;
+    display: flex; align-items: center; justify-content: center; font-size: 46px;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold));
+    box-shadow: 0 0 0 8px var(--gold-bg);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .kopf-orb.waiting { animation: none; background: radial-gradient(circle at 35% 30%, #cfe8d4, var(--success)); box-shadow: 0 0 0 8px var(--success-bg); }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .kopf-bar { height: 10px; border-radius: 6px; background: var(--paper-2); overflow: hidden; max-width: 320px; margin: 14px auto; }
+  .kopf-bar > div { height: 100%; background: var(--success); width: 100%; transform-origin: left; }
+  .solution-list { text-align: left; max-width: 480px; margin: 0 auto; }
+  .solution-list .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--card-border); font-size: 14px; }
+  .solution-list .row b { font-family: var(--font-mono); color: var(--gold); }
+
+  footer.attrib { text-align: center; color: var(--ink-2); font-size: 12px; margin-top: 40px; opacity: .6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="star-badge">★</div>
+    <div>
+      <h1>Elas Mathearbeit</h1>
+      <p>4. Klasse — auf dem Weg zur 1 mit Sternchen</p>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-view="home" class="active">Üben</button>
+    <button data-view="kopfrechnen">Kopfrechnen (Audio)</button>
+    <button data-view="pruefung">Prüfungssimulation</button>
+  </nav>
+
+  <main id="app"></main>
+
+  <footer class="attrib">Selbst gebaut, damit üben Spaß macht. Rechenweg zählt mehr als Tempo.</footer>
+</div>
+
+<script src="engine.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "ela_mathearbeit_v1";
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  const CATEGORIES = [
+    { id: "stellenwert", group: "Zahlen bis 10 000", title: "Stellenwerttafel", desc: "Zahlen aus T/H/Z/E zusammensetzen und zerlegen", icon: "🔢" },
+    { id: "zahlenstrahl", group: "Zahlen bis 10 000", title: "Zahlenstrahl", desc: "Welche Zahl zeigt der Pfeil?", icon: "📍" },
+    { id: "zahlenstrahlmitte", group: "Zahlen bis 10 000", title: "Genau in der Mitte", desc: "Die mittlere Zahl zwischen zwei Werten finden", icon: "🎯" },
+    { id: "nachbarzahlen", group: "Zahlen bis 10 000", title: "Nachbarzahlen", desc: "Vorgänger, Nachfolger, Nachbarzehner/-hunderter/-tausender", icon: "↔️" },
+    { id: "vergleich", group: "Zahlen bis 10 000", title: "Zahlen vergleichen", desc: "Kleiner oder größer? < oder >", icon: "⚖️" },
+    { id: "ordnen", group: "Zahlen bis 10 000", title: "Zahlen ordnen", desc: "Der Größe nach ordnen", icon: "📶" },
+    { id: "halbschriftlich", group: "Plus und Minus", title: "Halbschriftlich rechnen", desc: "Runde Zahlen im Kopf ergänzen", icon: "➕" },
+    { id: "schriftlich", group: "Plus und Minus", title: "Schriftlich rechnen", desc: "Addieren und subtrahieren mit Übertrag", icon: "📝" },
+    { id: "ketten", group: "Plus und Minus", title: "Kettenaufgaben", desc: "Mehrschrittige Rechengeschichten", icon: "🔗" },
+    { id: "sachaufgabe", group: "Plus und Minus", title: "Sachaufgaben", desc: "Textaufgaben mit Antwortsatz", icon: "⛴️" },
+    { id: "groesstekleinste", group: "Plus und Minus", title: "Größtes & kleinstes Ergebnis", desc: "Die richtigen Zahlen auswählen", icon: "🏆" },
+    { id: "malkreuz", group: "Mal und Geteilt", title: "Malkreuz", desc: "Halbschriftlich multiplizieren", icon: "✖️" },
+    { id: "teilen", group: "Mal und Geteilt", title: "Geteilt mit Rest", desc: "Halbschriftlich dividieren", icon: "➗" },
+    { id: "senkrechtparallel", group: "Geometrie", title: "Senkrecht & Parallel", desc: "Geraden zueinander erkennen", icon: "📐", weak: true },
+    { id: "rechtewinkel", group: "Geometrie", title: "Rechte Winkel zählen", desc: "Wie viele rechte Winkel hat die Figur?", icon: "◻️", weak: true },
+    { id: "parallelezeichnen", group: "Geometrie", title: "Parallele im Abstand", desc: "Parallele Gerade im richtigen Abstand einzeichnen", icon: "〰️", weak: true },
+    { id: "streckemessen", group: "Geometrie", title: "Strecken messen", desc: "Länge am Lineal ablesen (cm/mm)", icon: "📏" },
+    { id: "streckezeichnen", group: "Geometrie", title: "Strecken zeichnen", desc: "Eine vorgegebene Länge einzeichnen", icon: "✏️" },
+    { id: "rechteckzeichnen", group: "Geometrie", title: "Rechteck zeichnen", desc: "Rechteck mit vorgegebenen Maßen", icon: "▭" },
+  ];
+  const GROUP_ORDER = ["Zahlen bis 10 000", "Plus und Minus", "Mal und Geteilt", "Geometrie"];
+  const CAT_BY_ID = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
+
+  // ---------- Progress store ----------
+  function loadProgress() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveProgress(p) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch (e) {}
+  }
+  let progress = loadProgress();
+  function recordResult(catId, correct) {
+    if (!progress[catId]) progress[catId] = { attempts: 0, correct: 0, streak: 0 };
+    progress[catId].attempts++;
+    if (correct) { progress[catId].correct++; progress[catId].streak++; }
+    else progress[catId].streak = 0;
+    saveProgress(progress);
+  }
+  function masteryRatio(catId) {
+    const p = progress[catId];
+    if (!p || p.attempts === 0) return 0;
+    return p.correct / p.attempts;
+  }
+  function isMastered(catId) {
+    const p = progress[catId];
+    return p && p.attempts >= 3 && masteryRatio(catId) >= 0.8;
+  }
+
+  // ---------- DOM helpers ----------
+  const app = document.getElementById("app");
+  function h(tag, attrs, children) {
+    const el = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      if (k === "html") el.innerHTML = attrs[k];
+      else if (k === "class") el.className = attrs[k];
+      else if (k.startsWith("on") && typeof attrs[k] === "function") el.addEventListener(k.slice(2), attrs[k]);
+      else el.setAttribute(k, attrs[k]);
+    }
+    (children || []).forEach((c) => { if (c) el.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return el;
+  }
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function fmtNum(n) { return String(n); }
+
+  // ---------- Router ----------
+  let currentView = "home";
+  document.querySelectorAll("nav.tabs button").forEach((btn) => {
+    btn.addEventListener("click", () => setView(btn.dataset.view));
+  });
+  function setView(view) {
+    currentView = view;
+    document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+    stopKopfAudio();
+    if (view === "home") renderHome();
+    else if (view === "kopfrechnen") renderKopfSetup();
+    else if (view === "pruefung") renderPruefungIntro();
+  }
+
+  // ---------- Home: category grid ----------
+  function renderHome() {
+    app.innerHTML = "";
+    GROUP_ORDER.forEach((group) => {
+      app.appendChild(h("div", { class: "group-title" }, [group, h("div", { class: "bar" })]));
+      const grid = h("div", { class: "card-grid" });
+      CATEGORIES.filter((c) => c.group === group).forEach((c) => {
+        const ratio = masteryRatio(c.id);
+        const p = progress[c.id];
+        const card = h("div", { class: "cat-card" }, [
+          h("div", { class: "icon-row" }, [
+            h("span", { class: "icon" }, [c.icon]),
+            c.weak ? h("span", { class: "weak-flag" }, ["Übe das!"]) : null,
+          ]),
+          h("h3", {}, [c.title]),
+          h("p", {}, [c.desc]),
+          h("div", { class: "progress-bar" }, [h("div", { style: `width:${Math.round(ratio * 100)}%` })]),
+          p ? h("p", { style: "font-size:11px;color:var(--ink-2);margin-top:2px;" }, [`${p.correct}/${p.attempts} richtig`]) : null,
+        ]);
+        if (isMastered(c.id)) card.appendChild(h("div", { class: "mastery-star" }, ["★"]));
+        card.addEventListener("click", () => renderPractice(c.id));
+        grid.appendChild(card);
+      });
+      app.appendChild(grid);
+    });
+  }
+
+  // ---------- Practice view ----------
+  let practiceState = null;
+  function renderPractice(catId) {
+    practiceState = { catId, streak: 0 };
+    app.innerHTML = "";
+    const header = h("div", { class: "practice-header" }, [
+      h("button", { class: "back-btn", onclick: renderHome }, ["← Zurück zur Übersicht"]),
+      h("div", { class: "streak" }, [`🔥 ${practiceState.streak}`]),
+    ]);
+    app.appendChild(header);
+    app.appendChild(h("h2", { style: "margin:0 0 14px;" }, [CAT_BY_ID[catId].title]));
+    const holder = h("div", { id: "task-holder" });
+    app.appendChild(holder);
+    nextTask();
+  }
+  function updateStreak() {
+    const el = app.querySelector(".streak");
+    if (el) el.textContent = `🔥 ${practiceState.streak}`;
+  }
+  function nextTask() {
+    const holder = document.getElementById("task-holder");
+    if (!holder) return;
+    holder.innerHTML = "";
+    const task = CATEGORY_GENERATORS[practiceState.catId]();
+    practiceState.task = task;
+    const renderer = RENDERERS[task.category];
+    const card = h("div", { class: "task-card" });
+    holder.appendChild(card);
+    const ctx = renderer.render(task, card);
+    const feedbackSlot = h("div", { id: "feedback-slot" });
+    card.appendChild(feedbackSlot);
+    const btnRow = h("div", { class: "btn-row" });
+    const checkBtn = h("button", { class: "btn gold" }, ["Prüfen"]);
+    const nextBtn = h("button", { class: "btn secondary", style: "display:none;" }, ["Weiter →"]);
+    checkBtn.addEventListener("click", () => {
+      const result = renderer.check(task, ctx);
+      const correct = result === true || (result && result.correct);
+      const explain = result && result.explain ? result.explain : "";
+      feedbackSlot.innerHTML = "";
+      feedbackSlot.appendChild(
+        h("div", { class: "feedback " + (correct ? "correct" : "wrong") }, [
+          correct ? "✓ Richtig!" : "✗ Noch nicht ganz.",
+          explain ? h("div", { class: "explain", html: explain }) : null,
+        ])
+      );
+      recordResult(practiceState.catId, correct);
+      practiceState.streak = correct ? practiceState.streak + 1 : 0;
+      updateStreak();
+      checkBtn.style.display = "none";
+      nextBtn.style.display = "inline-block";
+      if (renderer.reveal) renderer.reveal(task, ctx);
+    });
+    nextBtn.addEventListener("click", () => {
+      checkBtn.style.display = "inline-block";
+      nextBtn.style.display = "none";
+      nextTask();
+    });
+    btnRow.appendChild(checkBtn);
+    btnRow.appendChild(nextBtn);
+    card.appendChild(btnRow);
+  }
+
+  // ---------- Number-line SVG ----------
+  function buildNumberLineSVG(min, max, majorStep, minorStep, target, width) {
+    width = width || 640;
+    const height = 110;
+    const pad = 24;
+    const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height });
+    const y = 60;
+    const scale = (width - 2 * pad) / (max - min);
+    const xOf = (v) => pad + (v - min) * scale;
+    svg.appendChild(svgEl("line", { x1: pad, y1: y, x2: width - pad, y2: y, stroke: "var(--ink)", "stroke-width": 2 }));
+    for (let v = min; v <= max + 1e-9; v += minorStep) {
+      const isMajor = Math.round((v - min) / majorStep) * majorStep + min === Math.round(v * 100) / 100 || v % majorStep === 0;
+      const tickH = v % majorStep === 0 ? 12 : 6;
+      svg.appendChild(svgEl("line", { x1: xOf(v), y1: y - tickH, x2: xOf(v), y2: y + tickH, stroke: "var(--ink-2)", "stroke-width": v % majorStep === 0 ? 2 : 1 }));
+      if (v % majorStep === 0) {
+        const t = svgEl("text", { x: xOf(v), y: y + 30, "text-anchor": "middle", "font-size": "12", fill: "var(--ink-2)" });
+        t.textContent = fmtNum(Math.round(v));
+        svg.appendChild(t);
+      }
+    }
+    const tx = xOf(target);
+    svg.appendChild(svgEl("line", { x1: tx, y1: y - 16, x2: tx, y2: y + 16, stroke: "var(--gold)", "stroke-width": 3 }));
+    const arrow = svgEl("path", { d: `M ${tx - 7} ${y - 30} L ${tx + 7} ${y - 30} L ${tx} ${y - 18} Z`, fill: "var(--gold)" });
+    svg.appendChild(arrow);
+    return svg;
+  }
+
+  function buildRulerSVG(mm, drawnMm) {
+    const pxPerMm = 7.2;
+    const totalCm = 16;
+    const width = totalCm * pxPerMm * 10 + 40;
+    const height = 90;
+    const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height });
+    const y0 = 40;
+    const x0 = 20;
+    svg.appendChild(svgEl("rect", { x: x0, y: y0 - 22, width: totalCm * pxPerMm * 10, height: 36, fill: "#fff", stroke: "var(--ink-2)", "stroke-width": 1.5, rx: 4 }));
+    for (let i = 0; i <= totalCm * 10; i++) {
+      const x = x0 + i * pxPerMm;
+      const isCm = i % 10 === 0;
+      const isHalf = i % 5 === 0;
+      const tickH = isCm ? 16 : isHalf ? 11 : 7;
+      svg.appendChild(svgEl("line", { x1: x, y1: y0 - 22, x2: x, y2: y0 - 22 + tickH, stroke: "var(--ink)", "stroke-width": isCm ? 1.4 : 0.8 }));
+      if (isCm && i > 0) {
+        const t = svgEl("text", { x, y: y0 - 24, "text-anchor": "middle", "font-size": "10", fill: "var(--ink-2)" });
+        t.textContent = i / 10;
+        svg.appendChild(t);
+      }
+    }
+    if (drawnMm != null) {
+      const segX = x0 + drawnMm * pxPerMm;
+      svg.appendChild(svgEl("line", { x1: x0, y1: y0 + 22, x2: segX, y2: y0 + 22, stroke: "var(--gold)", "stroke-width": 4 }));
+      svg.appendChild(svgEl("line", { x1: x0, y1: y0 + 16, x2: x0, y2: y0 + 28, stroke: "var(--gold)", "stroke-width": 3 }));
+      svg.appendChild(svgEl("line", { x1: segX, y1: y0 + 16, x2: segX, y2: y0 + 28, stroke: "var(--gold)", "stroke-width": 3 }));
+    }
+    return { svg, x0, pxPerMm, y0 };
+  }
+
+  // ---------- Renderers ----------
+  const RENDERERS = {};
+
+  RENDERERS.stellenwert = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const ctx = {};
+      if (task.mode === "compose") {
+        const row = h("div", { class: "input-row" });
+        const inp = h("input", { type: "number", placeholder: "Zahl" });
+        row.appendChild(inp);
+        card.appendChild(row);
+        ctx.input = inp;
+      } else {
+        const row = h("div", { class: "input-row" });
+        ["T", "H", "Z", "E"].forEach((p) => {
+          const wrap = h("div", {});
+          wrap.appendChild(h("label", {}, [p]));
+          const inp = h("input", { type: "number", style: "width:60px;" });
+          wrap.appendChild(inp);
+          row.appendChild(wrap);
+          ctx[p] = inp;
+        });
+        card.appendChild(row);
+      }
+      return ctx;
+    },
+    check(task, ctx) {
+      if (task.mode === "compose") {
+        const val = parseInt(ctx.input.value, 10);
+        return { correct: val === task.answer, explain: `Richtig: ${task.answer} (${task.digits.T}·1000 + ${task.digits.H}·100 + ${task.digits.Z}·10 + ${task.digits.E})` };
+      }
+      const ok = ["T", "H", "Z", "E"].every((p) => parseInt(ctx[p].value, 10) === task.digits[p]);
+      return { correct: ok, explain: `Richtig: ${task.digits.T}T + ${task.digits.H}H + ${task.digits.Z}Z + ${task.digits.E}E (${task.n})` };
+    },
+  };
+
+  RENDERERS.zahlenstrahl = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(buildNumberLineSVG(task.min, task.max, task.majorStep, task.minorStep, task.target));
+      card.appendChild(wrap);
+      const row = h("div", { class: "input-row" });
+      const inp = h("input", { type: "number", placeholder: "Zahl" });
+      row.appendChild(inp);
+      card.appendChild(row);
+      return { input: inp };
+    },
+    check(task, ctx) {
+      const val = parseInt(ctx.input.value, 10);
+      return { correct: val === task.target, explain: `Richtig: ${fmtNum(task.target)}` };
+    },
+  };
+
+  RENDERERS.zahlenstrahlmitte = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const width = 500, height = 90, pad = 40, y = 45;
+      const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height });
+      svg.appendChild(svgEl("line", { x1: pad, y1: y, x2: width - pad, y2: y, stroke: "var(--ink)", "stroke-width": 2 }));
+      [pad, width / 2, width - pad].forEach((x) => svg.appendChild(svgEl("line", { x1: x, y1: y - 14, x2: x, y2: y + 14, stroke: "var(--ink-2)", "stroke-width": 2 })));
+      svg.appendChild(svgEl("text", { x: pad, y: y - 22, "text-anchor": "middle", "font-size": "15", "font-weight": "700" }, []));
+      const ta = svg.querySelector("text");
+      ta.textContent = fmtNum(task.a);
+      const tb = svgEl("text", { x: width - pad, y: y - 22, "text-anchor": "middle", "font-size": "15", "font-weight": "700" });
+      tb.textContent = fmtNum(task.b);
+      svg.appendChild(tb);
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      const row = h("div", { class: "input-row" });
+      const inp = h("input", { type: "number", placeholder: "Mitte" });
+      row.appendChild(inp);
+      card.appendChild(row);
+      return { input: inp };
+    },
+    check(task, ctx) {
+      const val = parseInt(ctx.input.value, 10);
+      return { correct: val === task.answer, explain: `Richtig: ${fmtNum(task.answer)}` };
+    },
+  };
+
+  RENDERERS.nachbarzahlen = {
+    render(task, card) {
+      const label = { vorgnach: "Vorgänger / Nachfolger", zehner: "Nachbarzehner", hunderter: "Nachbarhunderter", tausender: "Nachbartausender" }[task.kind];
+      card.appendChild(h("div", { class: "task-prompt" }, [`${label} von ${fmtNum(task.n)}?`]));
+      const row = h("div", { class: "input-row" });
+      const inp1 = h("input", { type: "number", placeholder: "kleiner" });
+      const mid = h("div", { style: "font-family:var(--font-mono);font-weight:700;font-size:20px;" }, [fmtNum(task.n)]);
+      const inp2 = h("input", { type: "number", placeholder: "größer" });
+      row.appendChild(inp1); row.appendChild(mid); row.appendChild(inp2);
+      card.appendChild(row);
+      return { inp1, inp2 };
+    },
+    check(task, ctx) {
+      const v1 = parseInt(ctx.inp1.value, 10);
+      const v2 = parseInt(ctx.inp2.value, 10);
+      const correct = v1 === task.answer[0] && v2 === task.answer[1];
+      return { correct, explain: `Richtig: ${fmtNum(task.answer[0])} und ${fmtNum(task.answer[1])}` };
+    },
+  };
+
+  RENDERERS.vergleich = {
+    render(task, card) {
+      const row = h("div", { class: "equation" }, [`${fmtNum(task.a)}  `]);
+      const symSpan = h("span", { style: "display:inline-block;width:40px;color:var(--gold);" }, ["?"]);
+      row.appendChild(symSpan);
+      row.appendChild(document.createTextNode(`  ${fmtNum(task.b)}`));
+      card.appendChild(row);
+      const btnRow = h("div", { class: "btn-row" });
+      const lt = h("button", { class: "mc-btn" }, ["<"]);
+      const gt = h("button", { class: "mc-btn" }, [">"]);
+      let chosen = null;
+      lt.addEventListener("click", () => { chosen = "<"; symSpan.textContent = "<"; lt.classList.add("selected"); gt.classList.remove("selected"); });
+      gt.addEventListener("click", () => { chosen = ">"; symSpan.textContent = ">"; gt.classList.add("selected"); lt.classList.remove("selected"); });
+      btnRow.appendChild(lt); btnRow.appendChild(gt);
+      card.appendChild(btnRow);
+      return { get: () => chosen };
+    },
+    check(task, ctx) {
+      const val = ctx.get();
+      return { correct: val === task.answer, explain: `Richtig: ${fmtNum(task.a)} ${task.answer} ${fmtNum(task.b)}` };
+    },
+  };
+
+  RENDERERS.ordnen = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const strip = h("div", { class: "answer-strip" });
+      const chosen = [];
+      const chipRow = h("div", { class: "chip-row" });
+      const chips = task.list.map((n) => {
+        const chip = h("span", { class: "chip" }, [String(n)]);
+        chip.addEventListener("click", () => {
+          if (chip.classList.contains("used")) return;
+          chip.classList.add("used");
+          chosen.push(n);
+          strip.appendChild(h("span", { class: "slot" }, [String(n)]));
+        });
+        chipRow.appendChild(chip);
+        return chip;
+      });
+      card.appendChild(strip);
+      card.appendChild(chipRow);
+      const reset = h("button", { class: "btn secondary", style: "margin-top:10px;" }, ["Zurücksetzen"]);
+      reset.addEventListener("click", () => {
+        chosen.length = 0;
+        strip.innerHTML = "";
+        chips.forEach((c) => c.classList.remove("used"));
+      });
+      card.appendChild(reset);
+      return { chosen };
+    },
+    check(task, ctx) {
+      const correct = JSON.stringify(ctx.chosen) === JSON.stringify(task.answer);
+      return { correct, explain: `Richtig: ${task.answer.map(fmtNum).join(" → ")}` };
+    },
+  };
+
+  RENDERERS.halbschriftlich = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "equation" }, [`${fmtNum(task.a)} ${task.op} ${fmtNum(task.b)} = `]));
+      const row = h("div", { class: "input-row" });
+      const inp = h("input", { type: "number" });
+      row.appendChild(inp);
+      card.appendChild(row);
+      return { input: inp };
+    },
+    check(task, ctx) {
+      const val = parseInt(ctx.input.value, 10);
+      return { correct: val === task.answer, explain: `Richtig: ${fmtNum(task.answer)}` };
+    },
+  };
+
+  function thzeTable(digits, rowLabel) {
+    const t = h("table", { class: "thze-table" });
+    const head = h("tr", {}, ["T", "H", "Z", "E"].map((p) => h("th", {}, [p])));
+    t.appendChild(head);
+    const row = h("tr", {}, ["T", "H", "Z", "E"].map((p) => h("td", {}, [String(digits[p])])));
+    t.appendChild(row);
+    return t;
+  }
+  RENDERERS.schriftlich = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [`Rechne schriftlich: ${fmtNum(task.a)} ${task.op} ${fmtNum(task.b)}`]));
+      const wrap = h("div", { style: "display:flex;gap:24px;justify-content:center;flex-wrap:wrap;" });
+      wrap.appendChild(h("div", {}, [h("div", { style: "text-align:center;font-size:12px;color:var(--ink-2);margin-bottom:4px;" }, [fmtNum(task.a)]), thzeTable(task.digitsA)]));
+      wrap.appendChild(h("div", { style: "font-size:24px;font-weight:700;align-self:center;" }, [task.op]));
+      wrap.appendChild(h("div", {}, [h("div", { style: "text-align:center;font-size:12px;color:var(--ink-2);margin-bottom:4px;" }, [fmtNum(task.b)]), thzeTable(task.digitsB)]));
+      card.appendChild(wrap);
+      const row = h("div", { class: "input-row" });
+      row.appendChild(h("label", {}, []));
+      const inp = h("input", { type: "number", placeholder: "Ergebnis" });
+      row.appendChild(inp);
+      card.appendChild(row);
+      const revealSlot = h("div", { id: "reveal-slot" });
+      card.appendChild(revealSlot);
+      return { input: inp, revealSlot };
+    },
+    check(task, ctx) {
+      const val = parseInt(ctx.input.value, 10);
+      return { correct: val === task.answer, explain: `Richtig: ${fmtNum(task.answer)}` };
+    },
+    reveal(task, ctx) {
+      const isAdd = task.op === "+";
+      const step = isAdd ? columnAdd(task.digitsA, task.digitsB) : columnSub(task.digitsA, task.digitsB);
+      const places = ["T", "H", "Z", "E"];
+      const marks = isAdd ? step.carries : step.borrows;
+      let html = `<div style="font-family:var(--font-mono);text-align:center;margin-top:12px;">
+        <div style="font-size:12px;color:var(--gold);">${places.map((p) => (marks[p] ? "¹" : " ")).join(" ")}</div>
+        <div>${places.map((p) => task.digitsA[p]).join(" ")}</div>
+        <div>${task.op} ${places.map((p) => task.digitsB[p]).join(" ")}</div>
+        <div style="border-top:2px solid var(--ink);margin-top:2px;padding-top:2px;">${places.map((p) => step.result[p]).join(" ")}</div>
+      </div>`;
+      ctx.revealSlot.innerHTML = html;
+    },
+  };
+
+  RENDERERS.malkreuz = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const p0 = h("input", { type: "number", style: "width:80px;" });
+      const p1 = h("input", { type: "number", style: "width:80px;" });
+      const total = h("input", { type: "number", style: "width:90px;" });
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.a} · ${task.b0} =`, p0]));
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.a} · ${task.b1} =`, p1]));
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.a} · ${task.b} =`, total]));
+      return { p0, p1, total };
+    },
+    check(task, ctx) {
+      const correct = parseInt(ctx.p0.value, 10) === task.p0 && parseInt(ctx.p1.value, 10) === task.p1 && parseInt(ctx.total.value, 10) === task.total;
+      return { correct, explain: `Richtig: ${task.p0} + ${task.p1} = ${task.total}` };
+    },
+  };
+
+  RENDERERS.teilen = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const qtInp = h("input", { type: "number", style: "width:70px;" });
+      const qoInp = h("input", { type: "number", style: "width:70px;" });
+      const qInp = h("input", { type: "number", style: "width:70px;" });
+      const rInp = h("input", { type: "number", style: "width:60px;" });
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.pt} : ${task.d} =`, qtInp]));
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.po} : ${task.d} =`, qoInp]));
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.dividend} : ${task.d} =`, qInp, "Rest", rInp]));
+      return { qtInp, qoInp, qInp, rInp };
+    },
+    check(task, ctx) {
+      const correct =
+        parseInt(ctx.qtInp.value, 10) === task.qt &&
+        parseInt(ctx.qoInp.value, 10) === task.qo &&
+        parseInt(ctx.qInp.value, 10) === task.q &&
+        parseInt(ctx.rInp.value || "0", 10) === task.r;
+      return { correct, explain: `Richtig: ${task.q}${task.r ? " Rest " + task.r : ""}` };
+    },
+  };
+
+  RENDERERS.ketten = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const row = h("div", { class: "input-row" });
+      const inp = h("input", { type: "number", placeholder: "Ergebnis" });
+      row.appendChild(inp);
+      card.appendChild(row);
+      return { input: inp };
+    },
+    check(task, ctx) {
+      const val = parseInt(ctx.input.value, 10);
+      return { correct: val === task.answer, explain: `Richtig: ${fmtNum(task.answer)}` };
+    },
+  };
+
+  RENDERERS.sachaufgabe = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const row = h("div", { class: "input-row" });
+      row.appendChild(h("label", {}, ["A:"]));
+      const inp = h("input", { type: "number" });
+      row.appendChild(inp);
+      card.appendChild(row);
+      return { input: inp };
+    },
+    check(task, ctx) {
+      const val = parseInt(ctx.input.value, 10);
+      return { correct: val === task.answer, explain: `Richtig: ${fmtNum(task.answer)}` };
+    },
+  };
+
+  RENDERERS.groesstekleinste = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      card.appendChild(h("div", { class: "chip-row" }, task.list.map((n) => h("span", { class: "chip" }, [String(n)]))));
+      const row = h("div", { class: "input-row" });
+      const maxWrap = h("div", {}, [h("label", {}, ["größtes Ergebnis"]), (function () { const i = h("input", { type: "number" }); return i; })()]);
+      const minWrap = h("div", {}, [h("label", {}, ["kleinstes Ergebnis"]), (function () { const i = h("input", { type: "number" }); return i; })()]);
+      row.appendChild(maxWrap); row.appendChild(minWrap);
+      card.appendChild(row);
+      return { maxInp: maxWrap.querySelector("input"), minInp: minWrap.querySelector("input") };
+    },
+    check(task, ctx) {
+      const correct = parseInt(ctx.maxInp.value, 10) === task.answer.max && parseInt(ctx.minInp.value, 10) === task.answer.min;
+      return { correct, explain: `Richtig: größtes ${task.answer.max}, kleinstes ${task.answer.min}` };
+    },
+  };
+
+  function lineSvgFromAngle(angle, key, width, height) {
+    const cx = width / 2, cy = height / 2;
+    const rad = (angle * Math.PI) / 180;
+    const len = Math.max(width, height) * 0.85;
+    const dx = Math.cos(rad) * len / 2, dy = Math.sin(rad) * len / 2;
+    return { x1: cx - dx, y1: cy - dy, x2: cx + dx, y2: cy + dy };
+  }
+  RENDERERS.senkrechtparallel = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const width = 320, height = 260;
+      const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height, style: "max-width:320px;" });
+      const letters = Object.keys(task.angles);
+      const offsets = { a: [-70, -50], b: [70, -20], c: [-70, 40], d: [70, 90] };
+      letters.forEach((k, idx) => {
+        const angle = task.angles[k];
+        const cx = width / 2 + (idx % 2 === 0 ? -50 : 50);
+        const cy = 50 + idx * 55;
+        const rad = (angle * Math.PI) / 180;
+        const len = 140;
+        const dx = (Math.cos(rad) * len) / 2, dy = (Math.sin(rad) * len) / 2;
+        const x1 = cx - dx, y1 = cy - dy, x2 = cx + dx, y2 = cy + dy;
+        svg.appendChild(svgEl("line", { x1, y1, x2, y2, stroke: "var(--ink)", "stroke-width": 2.5 }));
+        const lt = svgEl("text", { x: x2 + 8, y: y2 + 4, "font-size": "16", "font-weight": "700", fill: "var(--gold)" });
+        lt.textContent = k;
+        svg.appendChild(lt);
+      });
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      const mc = h("div", { class: "mc-options" });
+      const buttons = task.options.map((opt) => {
+        const btn = h("button", { class: "mc-btn" }, [opt]);
+        mc.appendChild(btn);
+        return btn;
+      });
+      card.appendChild(mc);
+      let chosen = null;
+      buttons.forEach((btn, i) => btn.addEventListener("click", () => {
+        chosen = task.options[i];
+        buttons.forEach((b) => b.classList.remove("selected"));
+        btn.style.borderColor = "var(--gold)";
+      }));
+      return { get: () => chosen, buttons };
+    },
+    check(task, ctx) {
+      const val = ctx.get();
+      const correct = val === task.answer;
+      ctx.buttons.forEach((b) => {
+        if (b.textContent === task.answer) b.classList.add("correct");
+        else if (b.textContent === val) b.classList.add("wrong");
+        b.disabled = true;
+      });
+      return { correct, explain: `Richtig: ${task.answer}` };
+    },
+  };
+
+  function polygonToViewBox(points, pad) {
+    const xs = points.map((p) => p.x), ys = points.map((p) => p.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    return { minX: minX - pad, minY: minY - pad, w: maxX - minX + pad * 2, h: maxY - minY + pad * 2 };
+  }
+  RENDERERS.rechtewinkel = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const scale = 26;
+      const scaled = task.points.map((p) => ({ x: p.x * scale, y: p.y * scale }));
+      const vb = polygonToViewBox(scaled, 20);
+      const svg = svgEl("svg", { width: "100%", viewBox: `${vb.minX} ${vb.minY} ${vb.w} ${vb.h}`, height: 220, style: "max-width:320px;" });
+      const pts = scaled.map((p) => `${p.x},${p.y}`).join(" ");
+      svg.appendChild(svgEl("polygon", { points: pts, fill: "var(--paper-2)", stroke: "var(--ink)", "stroke-width": 2.5 }));
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      const row = h("div", { class: "input-row" });
+      const inp = h("input", { type: "number", placeholder: "Anzahl" });
+      row.appendChild(inp);
+      card.appendChild(row);
+      return { input: inp, svg, scaled };
+    },
+    check(task, ctx) {
+      const val = parseInt(ctx.input.value, 10);
+      return { correct: val === task.answer, explain: `Richtig: ${task.answer} rechte(r) Winkel` };
+    },
+    reveal(task, ctx) {
+      const n = ctx.scaled.length;
+      for (let i = 0; i < n; i++) {
+        const prev = ctx.scaled[(i - 1 + n) % n], curr = ctx.scaled[i], next = ctx.scaled[(i + 1) % n];
+        const ang = angleAtVertex(task.points[(i - 1 + n) % n], task.points[i], task.points[(i + 1) % n]);
+        if (Math.abs(ang - 90) < 0.5) {
+          ctx.svg.appendChild(svgEl("circle", { cx: curr.x, cy: curr.y, r: 6, fill: "none", stroke: "var(--success)", "stroke-width": 3 }));
+        }
+      }
+    },
+  };
+
+  RENDERERS.streckemessen = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const { svg } = buildRulerSVG(task.mm, task.mm);
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      const row = h("div", { class: "input-row" });
+      const cmInp = h("input", { type: "number", style: "width:70px;", placeholder: "cm" });
+      const mmInp = h("input", { type: "number", style: "width:70px;", placeholder: "mm" });
+      row.appendChild(h("div", {}, [h("label", {}, ["cm"]), cmInp]));
+      row.appendChild(h("div", {}, [h("label", {}, ["mm"]), mmInp]));
+      card.appendChild(row);
+      return { cmInp, mmInp };
+    },
+    check(task, ctx) {
+      const cm = parseInt(ctx.cmInp.value, 10);
+      const mm = parseInt(ctx.mmInp.value, 10);
+      const correct = cm === task.answer.cm && mm === task.answer.mm;
+      return { correct, explain: `Richtig: ${task.answer.cm} cm ${task.answer.mm} mm` };
+    },
+  };
+
+  RENDERERS.streckezeichnen = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const { svg, x0, pxPerMm, y0 } = buildRulerSVG(task.mm, null);
+      svg.style.cursor = "pointer";
+      let clickedMm = null;
+      const previewLine = svgEl("line", { x1: x0, y1: y0 + 22, x2: x0, y2: y0 + 22, stroke: "var(--gold)", "stroke-width": 4 });
+      svg.appendChild(previewLine);
+      svg.addEventListener("click", (ev) => {
+        const rect = svg.getBoundingClientRect();
+        const viewBoxW = parseFloat(svg.getAttribute("viewBox").split(" ")[2]);
+        const scaleFactor = viewBoxW / rect.width;
+        const xInSvg = (ev.clientX - rect.left) * scaleFactor;
+        let mm = Math.round((xInSvg - x0) / pxPerMm);
+        mm = Math.max(0, Math.min(160, mm));
+        clickedMm = mm;
+        previewLine.setAttribute("x2", x0 + mm * pxPerMm);
+      });
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      card.appendChild(h("p", { style: "text-align:center;font-size:13px;color:var(--ink-2);" }, ["Klicke auf das Lineal, um die Länge zu markieren."]));
+      return { get: () => clickedMm, svg, x0, pxPerMm, y0 };
+    },
+    check(task, ctx) {
+      const val = ctx.get();
+      const correct = val != null && Math.abs(val - task.mm) <= 1;
+      return { correct, explain: `Richtig: ${Math.floor(task.mm / 10)} cm ${task.mm % 10 ? task.mm % 10 + " mm" : ""}` };
+    },
+    reveal(task, ctx) {
+      ctx.svg.appendChild(svgEl("line", { x1: ctx.x0 + task.mm * ctx.pxPerMm, y1: ctx.y0 - 22, x2: ctx.x0 + task.mm * ctx.pxPerMm, y2: ctx.y0 + 30, stroke: "var(--success)", "stroke-width": 2, "stroke-dasharray": "4 3" }));
+    },
+  };
+
+  RENDERERS.rechteckzeichnen = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const cell = 30, cols = 10, rows = 8;
+      const width = cols * cell, height = rows * cell;
+      const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height: height, style: "max-width:400px;background:#fff;border-radius:8px;cursor:crosshair;" });
+      for (let i = 0; i <= cols; i++) svg.appendChild(svgEl("line", { x1: i * cell, y1: 0, x2: i * cell, y2: height, stroke: "var(--grid-line)", "stroke-width": 1 }));
+      for (let j = 0; j <= rows; j++) svg.appendChild(svgEl("line", { x1: 0, y1: j * cell, x2: width, y2: j * cell, stroke: "var(--grid-line)", "stroke-width": 1 }));
+      const rectPreview = svgEl("rect", { x: 0, y: 0, width: 0, height: 0, fill: "rgba(200,147,15,0.2)", stroke: "var(--gold)", "stroke-width": 2.5 });
+      svg.appendChild(rectPreview);
+      let start = null, current = null;
+      function toGrid(ev) {
+        const rect = svg.getBoundingClientRect();
+        const vb = svg.getAttribute("viewBox").split(" ").map(Number);
+        const scaleX = vb[2] / rect.width;
+        const scaleY = vb[3] / rect.height;
+        const x = (ev.clientX - rect.left) * scaleX;
+        const y = (ev.clientY - rect.top) * scaleY;
+        return { gx: Math.round(x / cell), gy: Math.round(y / cell) };
+      }
+      function updatePreview() {
+        if (!start || !current) return;
+        const x = Math.min(start.gx, current.gx) * cell;
+        const y = Math.min(start.gy, current.gy) * cell;
+        const w = Math.abs(current.gx - start.gx) * cell;
+        const hh = Math.abs(current.gy - start.gy) * cell;
+        rectPreview.setAttribute("x", x); rectPreview.setAttribute("y", y);
+        rectPreview.setAttribute("width", w); rectPreview.setAttribute("height", hh);
+      }
+      svg.addEventListener("pointerdown", (ev) => { start = toGrid(ev); current = start; updatePreview(); });
+      svg.addEventListener("pointermove", (ev) => { if (start) { current = toGrid(ev); updatePreview(); } });
+      window.addEventListener("pointerup", () => {});
+      svg.addEventListener("pointerup", (ev) => { current = toGrid(ev); updatePreview(); });
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      card.appendChild(h("p", { style: "text-align:center;font-size:13px;color:var(--ink-2);" }, ["Ziehe mit der Maus über das Kästchengitter (1 Kästchen = 1 cm)."]));
+      return { getRect: () => (start && current ? { w: Math.abs(current.gx - start.gx), h: Math.abs(current.gy - start.gy) } : null) };
+    },
+    check(task, ctx) {
+      const r = ctx.getRect();
+      const correct = !!r && ((r.w === task.w && r.h === task.h) || (r.w === task.h && r.h === task.w));
+      return { correct, explain: `Richtig: ${task.w} cm × ${task.h} cm` };
+    },
+  };
+
+  RENDERERS.parallelezeichnen = {
+    render(task, card) {
+      card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      const pxPerCm = 30, width = 320, height = 220;
+      const baseY = task.side === "oberhalb" ? height - 40 : 40;
+      const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height, style: "max-width:400px;background:#fff;border-radius:8px;cursor:crosshair;" });
+      for (let cm = 0; cm <= height / pxPerCm; cm++) svg.appendChild(svgEl("line", { x1: 0, y1: cm * pxPerCm, x2: width, y2: cm * pxPerCm, stroke: "var(--grid-line)", "stroke-width": 1 }));
+      svg.appendChild(svgEl("line", { x1: 20, y1: baseY, x2: width - 20, y2: baseY, stroke: "var(--ink)", "stroke-width": 3 }));
+      svg.appendChild((function () { const t = svgEl("text", { x: width - 15, y: baseY + 4, "font-size": "14", "font-weight": "700" }); t.textContent = "a"; return t; })());
+      const previewLine = svgEl("line", { x1: 20, y1: baseY, x2: width - 20, y2: baseY, stroke: "var(--gold)", "stroke-width": 3, opacity: 0 });
+      svg.appendChild(previewLine);
+      let chosenY = null;
+      svg.addEventListener("click", (ev) => {
+        const rect = svg.getBoundingClientRect();
+        const viewBoxH = parseFloat(svg.getAttribute("viewBox").split(" ")[3]);
+        const scaleFactor = viewBoxH / rect.height;
+        const y = (ev.clientY - rect.top) * scaleFactor;
+        chosenY = y;
+        previewLine.setAttribute("y1", y); previewLine.setAttribute("y2", y);
+        previewLine.setAttribute("opacity", 1);
+      });
+      const wrap = h("div", { class: "svg-wrap" });
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      card.appendChild(h("p", { style: "text-align:center;font-size:13px;color:var(--ink-2);" }, ["Klicke im Feld, um die parallele Gerade zu setzen. 1 Kästchen = 1 cm."]));
+      return { get: () => (chosenY == null ? null : Math.round((Math.abs(chosenY - baseY) / pxPerCm) * 10)), svg, baseY, pxPerCm, height };
+    },
+    check(task, ctx) {
+      const val = ctx.get();
+      const correct = val != null && Math.abs(val - task.distanceMm) <= 2;
+      return { correct, explain: `Richtig: Abstand ${(task.distanceMm / 10).toFixed(1).replace(".", ",")} cm` };
+    },
+    reveal(task, ctx) {
+      const targetY = task.side === "oberhalb" ? ctx.baseY - (task.distanceMm / 10) * ctx.pxPerCm : ctx.baseY + (task.distanceMm / 10) * ctx.pxPerCm;
+      ctx.svg.appendChild(svgEl("line", { x1: 20, y1: targetY, x2: 300, y2: targetY, stroke: "var(--success)", "stroke-width": 2, "stroke-dasharray": "5 4" }));
+    },
+  };
+
+  // ---------- Sachaufgabe context text tweak ----------
+
+  // ---------- Kopfrechnen (Audio) ----------
+  let kopfState = null;
+  let voicesReady = false;
+  let germanVoice = null;
+  function ensureVoices() {
+    function pick() {
+      const voices = speechSynthesis.getVoices();
+      germanVoice = voices.find((v) => v.lang === "de-DE") || voices.find((v) => v.lang && v.lang.startsWith("de")) || null;
+      voicesReady = true;
+    }
+    pick();
+    if (!voicesReady || !germanVoice) speechSynthesis.addEventListener("voiceschanged", pick, { once: true });
+  }
+  if (typeof speechSynthesis !== "undefined") ensureVoices();
+
+  function speak(text, onend) {
+    if (typeof speechSynthesis === "undefined") { onend && onend(); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "de-DE";
+    if (germanVoice) u.voice = germanVoice;
+    u.rate = 0.92;
+    u.onend = onend;
+    u.onerror = onend;
+    speechSynthesis.speak(u);
+  }
+  function stopKopfAudio() {
+    if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
+    if (kopfState && kopfState.timers) kopfState.timers.forEach(clearTimeout);
+  }
+
+  function renderKopfSetup() {
+    app.innerHTML = "";
+    const box = h("div", { class: "task-card kopf-setup" });
+    box.appendChild(h("h2", {}, ["Kopfrechnen wie im Test"]));
+    box.appendChild(h("p", { style: "color:var(--ink-2);font-size:14px;" }, ["Die Aufgabe wird laut vorgelesen, dann kommt eine Pause zum Aufschreiben — genau wie bei der Lehrerin."]));
+
+    let range = "tausend", count = 12, pause = 8, mode = "test";
+
+    function pillGroup(label, options, current, onPick) {
+      const g = h("div", { class: "opt-group" });
+      g.appendChild(h("label", { class: "group-label" }, [label]));
+      const pills = h("div", { class: "opt-pills" });
+      options.forEach((opt) => {
+        const btn = h("button", { class: opt.value === current ? "active" : "" }, [opt.label]);
+        btn.addEventListener("click", () => {
+          onPick(opt.value);
+          [...pills.children].forEach((c) => c.classList.remove("active"));
+          btn.classList.add("active");
+        });
+        pills.appendChild(btn);
+      });
+      g.appendChild(pills);
+      return g;
+    }
+
+    box.appendChild(pillGroup("Zahlenraum", [{ label: "Hunderter", value: "hundert" }, { label: "Tausender", value: "tausend" }], range, (v) => (range = v)));
+    box.appendChild(pillGroup("Anzahl Aufgaben", [{ label: "8", value: 8 }, { label: "12", value: 12 }, { label: "20", value: 20 }], count, (v) => (count = v)));
+    box.appendChild(pillGroup("Pause zum Schreiben", [{ label: "6 s", value: 6 }, { label: "8 s", value: 8 }, { label: "12 s", value: 12 }], pause, (v) => (pause = v)));
+    box.appendChild(pillGroup("Modus", [{ label: "Testsimulation (wie echt)", value: "test" }, { label: "Übung mit Kontrolle", value: "practice" }], mode, (v) => (mode = v)));
+
+    const startBtn = h("button", { class: "btn gold", style: "margin-top:10px;" }, ["▶ Start"]);
+    startBtn.addEventListener("click", () => startKopf(range, count, pause, mode));
+    box.appendChild(startBtn);
+    app.appendChild(box);
+  }
+
+  function startKopf(range, count, pause, mode) {
+    if (typeof speechSynthesis === "undefined") {
+      alert("Sprachausgabe wird auf diesem Gerät leider nicht unterstützt.");
+      return;
+    }
+    ensureVoices();
+    const tasks = [];
+    for (let i = 0; i < count; i++) tasks.push(genKopfAufgabe(range));
+    kopfState = { tasks, index: 0, mode, pause, results: [], timers: [] };
+    app.innerHTML = "";
+    const card = h("div", { class: "task-card kopf-stage" });
+    app.appendChild(card);
+    playKopfStep(card);
+  }
+
+  function playKopfStep(card) {
+    const st = kopfState;
+    if (st.index >= st.tasks.length) { renderKopfSummary(card); return; }
+    const task = st.tasks[st.index];
+    card.innerHTML = "";
+    card.appendChild(h("div", { class: "kopf-progress" }, [`Aufgabe ${st.index + 1} von ${st.tasks.length}`]));
+    const orb = h("div", { class: "kopf-orb" }, ["🔊"]);
+    card.appendChild(orb);
+    const controls = h("div", { class: "btn-row" });
+    const repeatBtn = h("button", { class: "btn secondary" }, ["🔁 Wiederholen"]);
+    const stopBtn = h("button", { class: "btn secondary" }, ["⏹ Abbrechen"]);
+    repeatBtn.addEventListener("click", () => speak(task.spoken));
+    stopBtn.addEventListener("click", () => { stopKopfAudio(); renderKopfSetup(); });
+    controls.appendChild(repeatBtn); controls.appendChild(stopBtn);
+    card.appendChild(controls);
+
+    let practiceInput = null;
+    const practiceSlot = h("div", { id: "practice-slot" });
+    card.appendChild(practiceSlot);
+
+    speak(task.spoken, () => {
+      orb.classList.add("waiting");
+      orb.textContent = "✍️";
+      if (kopfState.mode === "practice") {
+        practiceSlot.innerHTML = "";
+        const row = h("div", { class: "input-row" });
+        practiceInput = h("input", { type: "number", placeholder: "Antwort" });
+        row.appendChild(practiceInput);
+        practiceSlot.appendChild(row);
+        practiceInput.focus();
+      }
+      const bar = h("div", { class: "kopf-bar" }, [h("div", {})]);
+      card.appendChild(bar);
+      const fill = bar.querySelector("div");
+      fill.style.transition = `transform ${kopfState.pause}s linear`;
+      requestAnimationFrame(() => { fill.style.transform = "scaleX(0)"; });
+      const timer = setTimeout(() => {
+        const given = practiceInput ? parseInt(practiceInput.value, 10) : null;
+        kopfState.results.push({ task, given });
+        kopfState.index++;
+        playKopfStep(card);
+      }, kopfState.pause * 1000);
+      kopfState.timers.push(timer);
+    });
+  }
+
+  function renderKopfSummary(card) {
+    const st = kopfState;
+    card.innerHTML = "";
+    card.appendChild(h("h2", {}, ["Fertig! 🎉"]));
+    if (st.mode === "practice") {
+      const correctCount = st.results.filter((r) => r.given === r.task.answer).length;
+      card.appendChild(h("p", { style: "font-size:18px;font-weight:700;" }, [`${correctCount} von ${st.results.length} richtig`]));
+    } else {
+      card.appendChild(h("p", { style: "color:var(--ink-2);" }, ["Lösungsblatt zum Vergleichen mit dem Papier:"]));
+    }
+    const list = h("div", { class: "solution-list" });
+    st.results.forEach((r, i) => {
+      const row = h("div", { class: "row" }, [
+        h("span", {}, [`${i + 1}. ${r.task.spoken}`]),
+        h("b", {}, [String(r.task.answer)]),
+      ]);
+      list.appendChild(row);
+    });
+    card.appendChild(list);
+    const again = h("button", { class: "btn gold", style: "margin-top:16px;" }, ["Neue Runde"]);
+    again.addEventListener("click", renderKopfSetup);
+    card.appendChild(again);
+  }
+
+  // ---------- Prüfungssimulation ----------
+  const WEIGHTED_CATS = [
+    "stellenwert", "zahlenstrahl", "zahlenstrahlmitte", "nachbarzahlen", "vergleich", "ordnen",
+    "halbschriftlich", "schriftlich", "ketten", "sachaufgabe", "groesstekleinste",
+    "malkreuz", "teilen",
+    "senkrechtparallel", "senkrechtparallel",
+    "rechtewinkel", "rechtewinkel",
+    "parallelezeichnen", "parallelezeichnen",
+    "streckemessen", "streckezeichnen",
+    "rechteckzeichnen",
+  ];
+  function renderPruefungIntro() {
+    app.innerHTML = "";
+    const box = h("div", { class: "task-card" });
+    box.appendChild(h("h2", {}, ["Prüfungssimulation"]));
+    box.appendChild(h("p", { style: "color:var(--ink-2);" }, ["20 gemischte Aufgaben aus allen Bereichen — mit etwas mehr Geometrie, weil das laut deinem letzten Blatt noch wackelt. Am Ende gibt's eine Auswertung pro Bereich."]));
+    const startBtn = h("button", { class: "btn gold" }, ["Prüfung starten"]);
+    startBtn.addEventListener("click", startPruefung);
+    box.appendChild(startBtn);
+    app.appendChild(box);
+  }
+  let pruefungState = null;
+  function startPruefung() {
+    const picks = [];
+    const pool = shuffle_(WEIGHTED_CATS.slice());
+    for (let i = 0; i < 20; i++) picks.push(pool[i % pool.length]);
+    pruefungState = { items: shuffle_(picks), index: 0, results: [] };
+    app.innerHTML = "";
+    renderPruefungTask();
+  }
+  function shuffle_(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+  function renderPruefungTask() {
+    const st = pruefungState;
+    app.innerHTML = "";
+    app.appendChild(h("div", { class: "kopf-progress", style: "text-align:center;margin-bottom:10px;" }, [`Aufgabe ${st.index + 1} von ${st.items.length}`]));
+    const catId = st.items[st.index];
+    const task = CATEGORY_GENERATORS[catId]();
+    const renderer = RENDERERS[task.category];
+    const card = h("div", { class: "task-card" });
+    app.appendChild(card);
+    const ctx = renderer.render(task, card);
+    const feedbackSlot = h("div", {});
+    card.appendChild(feedbackSlot);
+    const btnRow = h("div", { class: "btn-row" });
+    const checkBtn = h("button", { class: "btn gold" }, ["Prüfen"]);
+    const nextBtn = h("button", { class: "btn secondary", style: "display:none;" }, [st.index + 1 < st.items.length ? "Weiter →" : "Auswertung ansehen"]);
+    checkBtn.addEventListener("click", () => {
+      const result = renderer.check(task, ctx);
+      const correct = result === true || (result && result.correct);
+      feedbackSlot.innerHTML = "";
+      feedbackSlot.appendChild(h("div", { class: "feedback " + (correct ? "correct" : "wrong") }, [correct ? "✓ Richtig!" : "✗ Noch nicht.", result.explain ? h("div", { class: "explain", html: result.explain }) : null]));
+      st.results.push({ catId, correct });
+      recordResult(catId, correct);
+      checkBtn.style.display = "none";
+      nextBtn.style.display = "inline-block";
+    });
+    nextBtn.addEventListener("click", () => {
+      st.index++;
+      if (st.index >= st.items.length) renderPruefungResult();
+      else renderPruefungTask();
+    });
+    btnRow.appendChild(checkBtn); btnRow.appendChild(nextBtn);
+    card.appendChild(btnRow);
+  }
+  function renderPruefungResult() {
+    const st = pruefungState;
+    app.innerHTML = "";
+    const correctCount = st.results.filter((r) => r.correct).length;
+    const box = h("div", { class: "task-card" });
+    box.appendChild(h("h2", {}, ["Auswertung"]));
+    box.appendChild(h("p", { style: "font-size:22px;font-weight:800;" }, [`${correctCount} von ${st.results.length} richtig`]));
+    const byCat = {};
+    st.results.forEach((r) => {
+      if (!byCat[r.catId]) byCat[r.catId] = { correct: 0, total: 0 };
+      byCat[r.catId].total++;
+      if (r.correct) byCat[r.catId].correct++;
+    });
+    const list = h("div", { class: "solution-list" });
+    Object.keys(byCat).forEach((catId) => {
+      const b = byCat[catId];
+      list.appendChild(h("div", { class: "row" }, [CAT_BY_ID[catId] ? CAT_BY_ID[catId].title : catId, h("b", {}, [`${b.correct}/${b.total}`])]));
+    });
+    box.appendChild(list);
+    const weakest = Object.keys(byCat).sort((a, b) => byCat[a].correct / byCat[a].total - byCat[b].correct / byCat[b].total)[0];
+    if (weakest && byCat[weakest].correct / byCat[weakest].total < 1) {
+      const btn = h("button", { class: "btn gold", style: "margin-top:14px;" }, [`Schwäche gezielt üben: ${CAT_BY_ID[weakest].title}`]);
+      btn.addEventListener("click", () => renderPractice(weakest));
+      box.appendChild(btn);
+    }
+    const again = h("button", { class: "btn secondary", style: "margin-top:10px;margin-left:8px;" }, ["Zurück zur Übersicht"]);
+    again.addEventListener("click", renderHome);
+    box.appendChild(again);
+    app.appendChild(box);
+  }
+
+  renderHome();
+})();
+</script>
+</body>
+</html>
