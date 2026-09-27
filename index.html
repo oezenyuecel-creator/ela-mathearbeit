@@ -1396,21 +1396,78 @@
     "streckemessen", "streckezeichnen",
     "rechteckzeichnen",
   ];
+  function isDynamicallyWeak(catId) {
+    const p = progress[catId];
+    return p && p.attempts >= 3 && masteryRatio(catId) < 0.7;
+  }
+  let pruefungSelectedCats = null;
+  let pruefungCount = 20;
   function renderPruefungIntro() {
+    if (!pruefungSelectedCats) pruefungSelectedCats = new Set(CATEGORIES.map((c) => c.id));
     app.innerHTML = "";
     const box = h("div", { class: "task-card" });
     box.appendChild(h("h2", {}, ["Prüfungssimulation"]));
-    box.appendChild(h("p", { style: "color:var(--ink-2);" }, ["20 gemischte Aufgaben aus allen Bereichen — mit etwas mehr Geometrie, weil das laut deinem letzten Blatt noch wackelt. Am Ende gibt's eine Auswertung pro Bereich."]));
-    const startBtn = h("button", { class: "btn gold" }, ["Prüfung starten"]);
-    startBtn.addEventListener("click", startPruefung);
+    box.appendChild(h("p", { style: "color:var(--ink-2);" }, ["Wähl aus, welche Themen diesmal drankommen sollen — muss nicht jedes Mal alles sein."]));
+
+    const quickRow = h("div", { class: "btn-row", style: "margin-bottom:10px;" });
+    const checkboxRefs = [];
+    function refreshChecks() {
+      checkboxRefs.forEach(({ id, cb }) => (cb.checked = pruefungSelectedCats.has(id)));
+    }
+    const allBtn = h("button", { class: "btn secondary" }, ["Alle"]);
+    allBtn.addEventListener("click", () => { pruefungSelectedCats = new Set(CATEGORIES.map((c) => c.id)); refreshChecks(); });
+    const noneBtn = h("button", { class: "btn secondary" }, ["Keine"]);
+    noneBtn.addEventListener("click", () => { pruefungSelectedCats = new Set(); refreshChecks(); });
+    const weakBtn = h("button", { class: "btn secondary" }, ["Nur Schwächen"]);
+    weakBtn.addEventListener("click", () => {
+      pruefungSelectedCats = new Set(CATEGORIES.filter((c) => c.weak || isDynamicallyWeak(c.id)).map((c) => c.id));
+      refreshChecks();
+    });
+    quickRow.appendChild(allBtn); quickRow.appendChild(noneBtn); quickRow.appendChild(weakBtn);
+    box.appendChild(quickRow);
+
+    GROUP_ORDER.forEach((group) => {
+      box.appendChild(h("div", { class: "group-title", style: "margin-top:14px;" }, [group]));
+      const grid = h("div", { style: "display:flex;flex-wrap:wrap;gap:8px;" });
+      CATEGORIES.filter((c) => c.group === group).forEach((c) => {
+        const label = h("label", { style: "display:flex;align-items:center;gap:6px;padding:8px 12px;border:2px solid var(--card-border);border-radius:10px;cursor:pointer;font-size:14px;background:var(--paper);" });
+        const cb = h("input", { type: "checkbox" });
+        cb.checked = pruefungSelectedCats.has(c.id);
+        cb.addEventListener("change", () => { if (cb.checked) pruefungSelectedCats.add(c.id); else pruefungSelectedCats.delete(c.id); });
+        checkboxRefs.push({ id: c.id, cb });
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(`${c.icon} ${c.title}`));
+        if (c.weak) label.appendChild(h("span", { class: "weak-flag", style: "margin-left:2px;" }, ["Übe das!"]));
+        grid.appendChild(label);
+      });
+      box.appendChild(grid);
+    });
+
+    box.appendChild(h("div", { class: "group-title", style: "margin-top:16px;" }, ["Anzahl Aufgaben"]));
+    const countRow = h("div", { class: "opt-pills" });
+    [10, 15, 20, 30].forEach((n) => {
+      const btn = h("button", { class: n === pruefungCount ? "active" : "" }, [String(n)]);
+      btn.addEventListener("click", () => { pruefungCount = n; [...countRow.children].forEach((c) => c.classList.remove("active")); btn.classList.add("active"); });
+      countRow.appendChild(btn);
+    });
+    box.appendChild(countRow);
+
+    const errSlot = h("div", { class: "explain", style: "color:var(--error);margin-top:10px;" });
+    const startBtn = h("button", { class: "btn gold", style: "margin-top:16px;" }, ["Prüfung starten"]);
+    startBtn.addEventListener("click", () => {
+      if (pruefungSelectedCats.size === 0) { errSlot.textContent = "Wähle mindestens ein Thema aus."; return; }
+      startPruefung();
+    });
+    box.appendChild(errSlot);
     box.appendChild(startBtn);
     app.appendChild(box);
   }
   let pruefungState = null;
   function startPruefung() {
+    const basePool = WEIGHTED_CATS.filter((id) => pruefungSelectedCats.has(id));
+    const pool = shuffle_((basePool.length ? basePool : [...pruefungSelectedCats]).slice());
     const picks = [];
-    const pool = shuffle_(WEIGHTED_CATS.slice());
-    for (let i = 0; i < 20; i++) picks.push(pool[i % pool.length]);
+    for (let i = 0; i < pruefungCount; i++) picks.push(pool[i % pool.length]);
     pruefungState = { items: shuffle_(picks), index: 0, results: [] };
     app.innerHTML = "";
     renderPruefungTask();
