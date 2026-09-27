@@ -1087,7 +1087,7 @@
       card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
       const cell = 30, cols = 10, rows = 8;
       const width = cols * cell, height = rows * cell;
-      const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height: height, style: "max-width:400px;background:#fff;border-radius:8px;cursor:crosshair;" });
+      const svg = svgEl("svg", { width: "100%", viewBox: `0 0 ${width} ${height}`, height: height, style: "max-width:400px;background:#fff;border-radius:8px;cursor:crosshair;touch-action:none;" });
       for (let i = 0; i <= cols; i++) svg.appendChild(svgEl("line", { x1: i * cell, y1: 0, x2: i * cell, y2: height, stroke: "var(--grid-line)", "stroke-width": 1 }));
       for (let j = 0; j <= rows; j++) svg.appendChild(svgEl("line", { x1: 0, y1: j * cell, x2: width, y2: j * cell, stroke: "var(--grid-line)", "stroke-width": 1 }));
       const rectPreview = svgEl("rect", { x: 0, y: 0, width: 0, height: 0, fill: "rgba(200,147,15,0.2)", stroke: "var(--gold)", "stroke-width": 2.5 });
@@ -1111,14 +1111,17 @@
         rectPreview.setAttribute("x", x); rectPreview.setAttribute("y", y);
         rectPreview.setAttribute("width", w); rectPreview.setAttribute("height", hh);
       }
-      svg.addEventListener("pointerdown", (ev) => { start = toGrid(ev); current = start; updatePreview(); });
-      svg.addEventListener("pointermove", (ev) => { if (start) { current = toGrid(ev); updatePreview(); } });
-      window.addEventListener("pointerup", () => {});
-      svg.addEventListener("pointerup", (ev) => { current = toGrid(ev); updatePreview(); });
+      svg.addEventListener("pointerdown", (ev) => {
+        ev.preventDefault();
+        svg.setPointerCapture(ev.pointerId);
+        start = toGrid(ev); current = start; updatePreview();
+      });
+      svg.addEventListener("pointermove", (ev) => { if (start) { ev.preventDefault(); current = toGrid(ev); updatePreview(); } });
+      svg.addEventListener("pointerup", (ev) => { ev.preventDefault(); current = toGrid(ev); updatePreview(); });
       const wrap = h("div", { class: "svg-wrap" });
       wrap.appendChild(svg);
       card.appendChild(wrap);
-      card.appendChild(h("p", { style: "text-align:center;font-size:13px;color:var(--ink-2);" }, ["Ziehe mit der Maus über das Kästchengitter (1 Kästchen = 1 cm)."]));
+      card.appendChild(h("p", { style: "text-align:center;font-size:13px;color:var(--ink-2);" }, ["Ziehe mit dem Finger oder der Maus über das Kästchengitter (1 Kästchen = 1 cm)."]));
       return { getRect: () => (start && current ? { w: Math.abs(current.gx - start.gx), h: Math.abs(current.gy - start.gy) } : null) };
     },
     check(task, ctx) {

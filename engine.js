@@ -543,7 +543,7 @@ function genRechteckZeichnen() {
     category: "rechteckzeichnen",
     w,
     h,
-    prompt: `Zeichne mit der Maus ein Rechteck: eine Seite ${w} cm, die andere ${h} cm.`,
+    prompt: `Zeichne ein Rechteck: eine Seite ${w} cm, die andere ${h} cm.`,
     answer: { w, h },
   };
 }
