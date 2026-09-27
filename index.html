@@ -1421,6 +1421,14 @@
     "streckemessen", "streckezeichnen",
     "rechteckzeichnen",
   ];
+  // Punktewerte wie im Probeprüfungs-Buch: einfache Fakten 2P, Sachaufgabe 4P (dort auch so),
+  // Geometrie-Zeichenaufgaben und Größte/kleinste 3P (mehr Teilschritte als eine reine Faktenaufgabe).
+  const POINTS_BY_CATEGORY = {
+    stellenwert: 2, zahlenstrahl: 2, zahlenstrahlmitte: 2, nachbarzahlen: 2, vergleich: 2, ordnen: 2,
+    halbschriftlich: 2, schriftlich: 2, ketten: 2, sachaufgabe: 4, groesstekleinste: 3,
+    malkreuz: 2, teilen: 2,
+    senkrechtparallel: 3, rechtewinkel: 3, parallelezeichnen: 3, streckemessen: 3, streckezeichnen: 3, rechteckzeichnen: 3,
+  };
   function isDynamicallyWeak(catId) {
     const p = progress[catId];
     return p && p.attempts >= 3 && masteryRatio(catId) < 0.7;
@@ -1522,7 +1530,8 @@
       const correct = result === true || (result && result.correct);
       feedbackSlot.innerHTML = "";
       feedbackSlot.appendChild(h("div", { class: "feedback " + (correct ? "correct" : "wrong") }, [feedbackHeadline(correct), result.explain ? h("div", { class: "explain", html: result.explain }) : null]));
-      st.results.push({ catId, correct });
+      const maxPoints = POINTS_BY_CATEGORY[catId] || 2;
+      st.results.push({ catId, correct, points: correct ? maxPoints : 0, maxPoints });
       recordResult(catId, correct);
       checkBtn.style.display = "none";
       nextBtn.style.display = "inline-block";
@@ -1539,20 +1548,28 @@
     const st = pruefungState;
     app.innerHTML = "";
     const correctCount = st.results.filter((r) => r.correct).length;
+    const totalPoints = st.results.reduce((sum, r) => sum + r.points, 0);
+    const maxPoints = st.results.reduce((sum, r) => sum + r.maxPoints, 0);
     const box = h("div", { class: "task-card" });
     box.appendChild(h("h2", {}, ["Auswertung"]));
-    box.appendChild(h("p", { style: "font-size:22px;font-weight:800;" }, [`${correctCount} von ${st.results.length} richtig`]));
-    if (chaosMode) box.appendChild(h("p", { style: "font-family:var(--font-hand);font-size:19px;color:var(--ink-2);margin-top:-8px;" }, [chaosPruefungHeadline(correctCount, st.results.length)]));
+    box.appendChild(h("p", { style: "font-size:28px;font-weight:800;color:var(--gold);" }, [`${totalPoints} von ${maxPoints} Punkten`]));
+    box.appendChild(h("p", { style: "font-size:15px;color:var(--ink-2);margin-top:-8px;" }, [`${correctCount} von ${st.results.length} Aufgaben richtig`]));
+    if (chaosMode) box.appendChild(h("p", { style: "font-family:var(--font-hand);font-size:19px;color:var(--ink-2);" }, [chaosPruefungHeadline(totalPoints, maxPoints)]));
     const byCat = {};
     st.results.forEach((r) => {
-      if (!byCat[r.catId]) byCat[r.catId] = { correct: 0, total: 0 };
+      if (!byCat[r.catId]) byCat[r.catId] = { correct: 0, total: 0, points: 0, maxPoints: 0 };
       byCat[r.catId].total++;
+      byCat[r.catId].points += r.points;
+      byCat[r.catId].maxPoints += r.maxPoints;
       if (r.correct) byCat[r.catId].correct++;
     });
     const list = h("div", { class: "solution-list" });
     Object.keys(byCat).forEach((catId) => {
       const b = byCat[catId];
-      list.appendChild(h("div", { class: "row" }, [CAT_BY_ID[catId] ? CAT_BY_ID[catId].title : catId, h("b", {}, [`${b.correct}/${b.total}`])]));
+      list.appendChild(h("div", { class: "row" }, [
+        `${CAT_BY_ID[catId] ? CAT_BY_ID[catId].title : catId} (${b.correct}/${b.total})`,
+        h("b", {}, [`${b.points}/${b.maxPoints} P`]),
+      ]));
     });
     box.appendChild(list);
     const weakest = Object.keys(byCat).sort((a, b) => byCat[a].correct / byCat[a].total - byCat[b].correct / byCat[b].total)[0];
