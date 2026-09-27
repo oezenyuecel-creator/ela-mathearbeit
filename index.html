@@ -129,9 +129,10 @@
 
   input[type="number"], input[type="text"] {
     font-family: var(--font-mono); font-size: 20px; padding: 10px 14px;
-    border: 2px solid var(--card-border); border-radius: 10px; width: 130px;
+    border: 2px solid var(--card-border); border-radius: 10px; width: 150px;
     background: var(--paper); color: var(--ink); text-align: center;
   }
+  input[type="number"]::placeholder, input[type="text"]::placeholder { font-size: 15px; }
   input[type="number"]:focus, input[type="text"]:focus { outline: none; border-color: var(--gold); }
   .input-row { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; margin: 14px 0; }
   .input-row label { font-size: 13px; color: var(--ink-2); display: block; margin-bottom: 4px; font-weight: 600; }
@@ -184,6 +185,18 @@
     border: 2px solid var(--card-border); border-radius: 8px; background: var(--paper); color: var(--ink);
   }
   .digit-box:focus { outline: none; border-color: var(--gold); }
+
+  .scratch-label { font-size: 12px; color: var(--ink-2); font-weight: 600; margin: 14px 0 4px; }
+  .scratch-pad {
+    width: 100%; box-sizing: border-box; resize: vertical; min-height: 100px;
+    font-family: var(--font-mono); font-size: 16px; color: var(--ink); line-height: 22px;
+    padding: 8px 12px; border: 2px solid var(--card-border); border-radius: 10px;
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 22px 22px; background-position: 12px 8px;
+  }
+  .scratch-pad:focus { outline: none; border-color: var(--gold); }
+  .scratch-pad::placeholder { font-family: var(--font-display); color: var(--ink-2); opacity: .6; }
 
   .svg-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
   svg text { font-family: var(--font-mono); }
@@ -410,6 +423,15 @@
       return parseInt(inputs.map((inp) => inp.value).join(""), 10);
     }
     return { wrap, inputs, getValue };
+  }
+
+  // Kariertes Rechenfeld wie auf dem Original-Arbeitsblatt: reines Schmierpapier zum
+  // Durchrechnen, wird nicht bewertet und nicht gespeichert (jede neue Aufgabe startet leer).
+  function scratchPad() {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(h("div", { class: "scratch-label" }, ["✏️ Dein Rechenweg (nicht bewertet):"]));
+    frag.appendChild(h("textarea", { class: "scratch-pad", rows: "4", placeholder: "Hier rechnen …", spellcheck: "false" }));
+    return frag;
   }
 
   // ---------- Chaos-Modus Toggle ----------
@@ -883,6 +905,7 @@
   RENDERERS.ketten = {
     render(task, card) {
       card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      card.appendChild(scratchPad());
       const row = h("div", { class: "input-row" });
       const inp = h("input", { type: "number", placeholder: "Ergebnis" });
       row.appendChild(inp);
@@ -898,6 +921,7 @@
   RENDERERS.sachaufgabe = {
     render(task, card) {
       card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
+      card.appendChild(scratchPad());
       const row = h("div", { class: "input-row" });
       row.appendChild(h("label", {}, ["A:"]));
       const inp = h("input", { type: "number" });
@@ -915,6 +939,7 @@
     render(task, card) {
       card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
       card.appendChild(h("div", { class: "chip-row" }, task.list.map((n) => h("span", { class: "chip" }, [String(n)]))));
+      card.appendChild(scratchPad());
       const row = h("div", { class: "input-row" });
       const maxWrap = h("div", {}, [h("label", {}, ["größtes Ergebnis"]), (function () { const i = h("input", { type: "number" }); return i; })()]);
       const minWrap = h("div", {}, [h("label", {}, ["kleinstes Ergebnis"]), (function () { const i = h("input", { type: "number" }); return i; })()]);
