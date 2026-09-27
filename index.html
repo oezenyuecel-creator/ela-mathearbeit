@@ -820,21 +820,22 @@
   RENDERERS.teilen = {
     render(task, card) {
       card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
-      const qtInp = h("input", { type: "number", style: "width:70px;" });
-      const qoInp = h("input", { type: "number", style: "width:70px;" });
+      const qtBoxes = digitBoxes(2);
+      const qoBoxes = digitBoxes(1);
       const qBoxes = digitBoxes(2);
-      const rInp = h("input", { type: "number", style: "width:60px;" });
-      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.pt} : ${task.d} =`, qtInp]));
-      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.po} : ${task.d} =`, qoInp]));
-      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.dividend} : ${task.d} =`, qBoxes.wrap, "Rest", rInp]));
-      return { qtInp, qoInp, qBoxes, rInp };
+      const rBoxes = digitBoxes(1);
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.pt} : ${task.d} =`, qtBoxes.wrap]));
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.po} : ${task.d} =`, qoBoxes.wrap]));
+      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.dividend} : ${task.d} =`, qBoxes.wrap, "Rest", rBoxes.wrap]));
+      return { qtBoxes, qoBoxes, qBoxes, rBoxes };
     },
     check(task, ctx) {
+      const rGiven = ctx.rBoxes.inputs[0].value === "" ? 0 : ctx.rBoxes.getValue();
       const correct =
-        parseInt(ctx.qtInp.value, 10) === task.qt &&
-        parseInt(ctx.qoInp.value, 10) === task.qo &&
+        ctx.qtBoxes.getValue() === task.qt &&
+        ctx.qoBoxes.getValue() === task.qo &&
         ctx.qBoxes.getValue() === task.q &&
-        parseInt(ctx.rInp.value || "0", 10) === task.r;
+        rGiven === task.r;
       return { correct, explain: `Richtig: ${task.q}${task.r ? " Rest " + task.r : ""}` };
     },
   };
