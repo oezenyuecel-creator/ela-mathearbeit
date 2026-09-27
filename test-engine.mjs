@@ -197,11 +197,20 @@ for (let i = 0; i < N; i++) {
   assert(t2.answer === (t2.op === "+" ? t2.a + t2.b : t2.a - t2.b), "kopf tausend arithmetic");
 
   const t3 = engine.genKopfMalGeteilt();
-  assert(t3.answer >= 2 && t3.answer <= 100, `kopf malgeteilt range ${t3.answer}`);
+  assert(Number.isInteger(t3.answer) && t3.answer >= 2 && t3.answer <= 810, `kopf malgeteilt range ${t3.answer}`);
 
   const t4 = engine.genKopfKette();
   assert(Number.isInteger(t4.answer), "kopf kette integer");
+
+  const t5 = engine.genKopfChain(choice(["hundert", "tausend"]));
+  assert(Array.isArray(t5.steps) && t5.steps.length >= 1, "kopf chain has steps");
+  assert(t5.steps[t5.steps.length - 1].result === t5.answer, "kopf chain final step matches answer");
+  assert(t5.answer >= 0, `kopf chain non-negative ${t5.answer}`);
+  assert(t5.steps.every((s) => Number.isInteger(s.result)), "kopf chain results are always whole numbers (division must be exact)");
+  assert(t5.steps[0].clause.startsWith("Start "), "kopf chain first clause announces the start value");
+  assert(t5.steps.slice(1).every((s) => !s.clause.startsWith("Start ")), "kopf chain only the first clause says Start");
 }
+function choice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 console.log(`${checks} Zusicherungen geprüft.`);
 if (failures.length) {

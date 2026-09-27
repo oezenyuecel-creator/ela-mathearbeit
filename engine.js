@@ -626,8 +626,11 @@ function genKopfPlusMinus(range) {
 }
 function genKopfMalGeteilt() {
   const op = choice(["mal", "geteilt"]);
-  const x = randInt(2, 10);
-  const y = randInt(2, 10);
+  // Mal die Hälfte der Fälle kleine Einmaleins-Fakten, mal "runde" Fakten wie 70 x 9 oder
+  // 240 : 6 — genau die Mischung aus dem Eltern-Vorleseskript, nicht nur 2..10.
+  const round = Math.random() < 0.4;
+  const x = round ? choice([20, 30, 40, 50, 60, 70, 80, 90]) : randInt(2, 10);
+  const y = randInt(2, 9);
   if (op === "mal") {
     return { category: "kopf_malgeteilt", op, spoken: `${x} mal ${y}`, answer: x * y };
   }
@@ -639,16 +642,76 @@ function genKopfMalGeteilt() {
     answer: x,
   };
 }
+
+// Kopfrechen-Ketten wie im Eltern-Vorleseskript: "Start 250. Plus 150. Minus 80." — knapp und
+// in genau der Sprache, die Ela schon aus dem Training mit den Eltern kennt (nicht die
+// ausformulierten Sätze der schriftlichen Kettenaufgaben). Mischt alle vier Grundrechenarten,
+// Division ist immer glatt (kein Rest).
+function chainOpLabel(op, val) {
+  if (op === "+") return `Plus ${val}.`;
+  if (op === "-") return `Minus ${val}.`;
+  if (op === "x") return `Mal ${val}.`;
+  return `Geteilt durch ${val}.`;
+}
+function genKopfChain(range) {
+  const maxVal = range === "hundert" ? 999 : 9999;
+  const startPool =
+    range === "hundert"
+      ? [60, 70, 75, 80, 90, 100, 120, 125, 150, 175, 180, 200, 225, 240, 250, 275, 300, 320, 350, 360, 375, 400, 450, 480, 500, 550, 600, 700, 750, 800, 900]
+      : [1000, 1200, 1500, 1800, 2000, 2400, 2500, 3000, 3600, 4000, 4500, 5000, 6000, 7200, 7500, 8000, 9000];
+  const deltaPool = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100, 120, 125, 140, 150, 160, 175, 180, 200, 210, 225, 240, 250, 275, 280, 300, 320, 350, 360, 375, 400, 450, 480, 500, 550, 600];
+  const numOps = choice([2, 2, 3]);
+
+  function attempt() {
+    const start = choice(startPool);
+    let value = start;
+    const steps = [];
+    for (let i = 0; i < numOps; i++) {
+      const op = choice(["+", "-", "x", "÷"]);
+      let newValue, val;
+      if (op === "+") {
+        val = choice(deltaPool);
+        newValue = value + val;
+        if (newValue > maxVal) return null;
+      } else if (op === "-") {
+        val = choice(deltaPool);
+        if (val > value) return null;
+        newValue = value - val;
+      } else if (op === "x") {
+        val = randInt(2, 9);
+        newValue = value * val;
+        if (newValue > maxVal) return null;
+      } else {
+        const divisors = shuffle([2, 3, 4, 5, 6, 7, 8, 9, 10]).filter((d) => value > 0 && value % d === 0 && value / d >= 1);
+        if (divisors.length === 0) return null;
+        val = divisors[0];
+        newValue = value / val;
+      }
+      const clause = i === 0 ? `Start ${start}. ${chainOpLabel(op, val)}` : chainOpLabel(op, val);
+      steps.push({ clause, result: newValue });
+      value = newValue;
+    }
+    return { steps, answer: value };
+  }
+
+  let result = null;
+  for (let tries = 0; tries < 200 && !result; tries++) result = attempt();
+  if (!result) {
+    const start = choice(startPool);
+    const val = choice(deltaPool.filter((d) => start + d <= maxVal));
+    result = { steps: [{ clause: `Start ${start}. Plus ${val}.`, result: start + val }], answer: start + val };
+  }
+  return { category: "kopf_kette", spoken: result.steps.map((s) => s.clause).join(" "), answer: result.answer, steps: result.steps };
+}
 function genKopfKette() {
-  const t = genKettenaufgabe();
-  return { category: "kopf_kette", spoken: t.prompt, answer: t.answer, steps: t.steps };
+  return genKopfChain("tausend");
 }
 
 function genKopfAufgabe(range) {
   const kind = choice(["plusminus", "plusminus", "malgeteilt", "kette"]);
   if (kind === "plusminus") return genKopfPlusMinus(range);
   if (kind === "malgeteilt") return genKopfMalGeteilt();
-  return genKopfKette();
+  return genKopfChain(range);
 }
 
 const CATEGORY_GENERATORS = {
@@ -712,6 +775,7 @@ if (typeof module !== "undefined") module.exports = {
   columnSub,
   genKopfPlusMinus,
   genKopfMalGeteilt,
+  genKopfChain,
   genKopfKette,
   genKopfAufgabe,
   CATEGORY_GENERATORS,

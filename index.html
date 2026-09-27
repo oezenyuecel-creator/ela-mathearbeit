@@ -1288,7 +1288,7 @@
 
     box.appendChild(pillGroup("Zahlenraum", [{ label: "Hunderter", value: "hundert" }, { label: "Tausender", value: "tausend" }], range, (v) => (range = v)));
     box.appendChild(pillGroup("Anzahl Aufgaben", [{ label: "8", value: 8 }, { label: "12", value: 12 }, { label: "20", value: 20 }], count, (v) => (count = v)));
-    box.appendChild(pillGroup("Pause zum Schreiben", [{ label: "6 s", value: 6 }, { label: "8 s", value: 8 }, { label: "12 s", value: 12 }], pause, (v) => (pause = v)));
+    box.appendChild(pillGroup("Pause zum Schreiben", [{ label: "Stufe 1 · Lernen (8 s)", value: 8 }, { label: "Stufe 2 · Sicher werden (6 s)", value: 6 }, { label: "Stufe 3 · Prüfung (5 s)", value: 5 }], pause, (v) => (pause = v)));
     box.appendChild(pillGroup("Modus", [{ label: "Testsimulation (wie echt)", value: "test" }, { label: "Übung mit Kontrolle", value: "practice" }], mode, (v) => (mode = v)));
 
     const startBtn = h("button", { class: "btn gold", style: "margin-top:10px;" }, ["▶ Start"]);
