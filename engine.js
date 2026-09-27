@@ -92,10 +92,26 @@ function genZahlenstrahl() {
 }
 
 function genZahlenstrahlMitte() {
-  const half = randInt(1, 250) * 2;
-  const a = roundTo(randInt(0, 9999 - half), 2);
-  const b = a + half;
-  const mid = (a + b) / 2;
+  // Wie auf dem Original-Arbeitsblatt: beide Endpunkte sind glatte Zehner-/Hunderter-/
+  // Tausenderzahlen, damit die Mitte ohne Einerstellen-Rechnerei im Kopf gefunden werden
+  // kann (Mitte landet dadurch immer auf einer 0 oder einer 5).
+  const options = [
+    { half: 1000, aStep: 1000 },
+    { half: 2000, aStep: 1000 },
+    { half: 3000, aStep: 1000 },
+    { half: 100, aStep: 100 },
+    { half: 200, aStep: 100 },
+    { half: 300, aStep: 100 },
+    { half: 500, aStep: 100 },
+    { half: 5, aStep: 10 },
+    { half: 10, aStep: 10 },
+    { half: 50, aStep: 10 },
+  ];
+  const { half, aStep } = choice(options);
+  const maxA = Math.floor((9999 - 2 * half) / aStep) * aStep;
+  const a = randInt(0, maxA / aStep) * aStep;
+  const b = a + 2 * half;
+  const mid = a + half;
   return {
     category: "zahlenstrahlmitte",
     a,

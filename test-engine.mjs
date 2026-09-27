@@ -30,6 +30,9 @@ for (let i = 0; i < N; i++) {
   assert(t.answer === (t.a + t.b) / 2, "midpoint arithmetic");
   assert(Number.isInteger(t.answer), "midpoint must be integer");
   assert(t.a < t.answer && t.answer < t.b, "midpoint must lie strictly between endpoints");
+  assert(t.a % 10 === 0 && t.b % 10 === 0, `zahlenstrahlmitte endpoints must be round tens (no Einer-arithmetic): ${t.a},${t.b}`);
+  assert(t.answer % 10 === 0 || t.answer % 10 === 5, `zahlenstrahlmitte midpoint must end in 0 or 5, never a random Einer: ${t.answer}`);
+  assert(t.a >= 0 && t.b <= 9999, `zahlenstrahlmitte range ${t.a},${t.b}`);
 }
 
 for (let i = 0; i < N; i++) {
