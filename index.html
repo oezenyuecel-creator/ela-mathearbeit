@@ -473,9 +473,29 @@
     ]);
     app.appendChild(header);
     app.appendChild(h("h2", { style: "margin:0 0 14px;" }, [CAT_BY_ID[catId].title]));
+    if (catId === "teilen") app.appendChild(teilenHelpToggle());
     const holder = h("div", { id: "task-holder" });
     app.appendChild(holder);
     nextTask();
+  }
+
+  let teilenHelpMode = true;
+  function teilenHelpToggle() {
+    const wrap = h("div", { style: "display:flex;gap:8px;justify-content:center;margin-bottom:14px;" });
+    const mkBtn = (label, val) => {
+      const btn = h("button", { class: "mc-btn", style: "padding:8px 16px;font-family:var(--font-display);" + (teilenHelpMode === val ? "background:var(--ink);color:var(--paper);border-color:var(--ink);" : "") }, [label]);
+      btn.addEventListener("click", () => {
+        if (teilenHelpMode === val) return;
+        teilenHelpMode = val;
+        nextTask();
+        const toggle = teilenHelpToggle();
+        wrap.replaceWith(toggle);
+      });
+      return btn;
+    };
+    wrap.appendChild(mkBtn("Mit Hilfe", true));
+    wrap.appendChild(mkBtn("Ohne Hilfe", false));
+    return wrap;
   }
   function updateStreak() {
     const el = app.querySelector(".streak");
@@ -817,6 +837,7 @@
     },
   };
 
+  function numDigits(n) { return String(n).length; }
   RENDERERS.teilen = {
     render(task, card) {
       card.appendChild(h("div", { class: "task-prompt" }, [task.prompt]));
@@ -824,19 +845,38 @@
       const qoBoxes = digitBoxes(1);
       const qBoxes = digitBoxes(2);
       const rBoxes = digitBoxes(1);
-      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.pt} : ${task.d} =`, qtBoxes.wrap]));
-      card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.po} : ${task.d} =`, qoBoxes.wrap]));
+      const ctx = { qtBoxes, qoBoxes, qBoxes, rBoxes, helpMode: teilenHelpMode };
+      if (teilenHelpMode) {
+        card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.pt} : ${task.d} =`, qtBoxes.wrap]));
+        card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.po} : ${task.d} =`, qoBoxes.wrap]));
+      } else {
+        const ptBoxes = digitBoxes(numDigits(task.pt));
+        const d1Boxes = digitBoxes(1);
+        const poBoxes = digitBoxes(numDigits(task.po));
+        const d2Boxes = digitBoxes(1);
+        card.appendChild(h("div", { class: "malkreuz-row" }, [ptBoxes.wrap, ":", d1Boxes.wrap, "=", qtBoxes.wrap]));
+        card.appendChild(h("div", { class: "malkreuz-row" }, [poBoxes.wrap, ":", d2Boxes.wrap, "=", qoBoxes.wrap]));
+        Object.assign(ctx, { ptBoxes, d1Boxes, poBoxes, d2Boxes });
+      }
       card.appendChild(h("div", { class: "malkreuz-row" }, [`${task.dividend} : ${task.d} =`, qBoxes.wrap, "Rest", rBoxes.wrap]));
-      return { qtBoxes, qoBoxes, qBoxes, rBoxes };
+      return ctx;
     },
     check(task, ctx) {
       const rGiven = ctx.rBoxes.inputs[0].value === "" ? 0 : ctx.rBoxes.getValue();
-      const correct =
+      let correct =
         ctx.qtBoxes.getValue() === task.qt &&
         ctx.qoBoxes.getValue() === task.qo &&
         ctx.qBoxes.getValue() === task.q &&
         rGiven === task.r;
-      return { correct, explain: `Richtig: ${task.q}${task.r ? " Rest " + task.r : ""}` };
+      if (!ctx.helpMode) {
+        correct =
+          correct &&
+          ctx.ptBoxes.getValue() === task.pt &&
+          ctx.d1Boxes.getValue() === task.d &&
+          ctx.poBoxes.getValue() === task.po &&
+          ctx.d2Boxes.getValue() === task.d;
+      }
+      return { correct, explain: `Richtig: ${task.pt} : ${task.d} = ${task.qt}, ${task.po} : ${task.d} = ${task.qo}, also ${task.q}${task.r ? " Rest " + task.r : ""}` };
     },
   };
 
