@@ -1267,7 +1267,7 @@
     box.appendChild(h("h2", {}, ["Kopfrechnen wie im Test"]));
     box.appendChild(h("p", { style: "color:var(--ink-2);font-size:14px;" }, ["Die Aufgabe wird laut vorgelesen, dann kommt eine Pause zum Aufschreiben — genau wie bei der Lehrerin."]));
 
-    let range = "tausend", count = 12, pause = 8, mode = "test";
+    let range = "hundert", count = 12, pause = 8, mode = "test", onlyPlusMinus = true;
 
     function pillGroup(label, options, current, onPick) {
       const g = h("div", { class: "opt-group" });
@@ -1286,25 +1286,26 @@
       return g;
     }
 
-    box.appendChild(pillGroup("Zahlenraum", [{ label: "Hunderter", value: "hundert" }, { label: "Tausender", value: "tausend" }], range, (v) => (range = v)));
+    box.appendChild(pillGroup("Aufgabentyp", [{ label: "Nur Plus/Minus (wie in der Arbeit)", value: true }, { label: "Gemischt (+ Mal/Geteilt/Ketten)", value: false }], onlyPlusMinus, (v) => (onlyPlusMinus = v)));
+    box.appendChild(pillGroup("Zahlenraum", [{ label: "Hunderter (bis 1000)", value: "hundert" }, { label: "Tausender (bis 9999)", value: "tausend" }], range, (v) => (range = v)));
     box.appendChild(pillGroup("Anzahl Aufgaben", [{ label: "8", value: 8 }, { label: "12", value: 12 }, { label: "20", value: 20 }], count, (v) => (count = v)));
     box.appendChild(pillGroup("Pause zum Schreiben", [{ label: "Stufe 1 · Lernen (8 s)", value: 8 }, { label: "Stufe 2 · Sicher werden (6 s)", value: 6 }, { label: "Stufe 3 · Prüfung (5 s)", value: 5 }], pause, (v) => (pause = v)));
     box.appendChild(pillGroup("Modus", [{ label: "Testsimulation (wie echt)", value: "test" }, { label: "Übung mit Kontrolle", value: "practice" }], mode, (v) => (mode = v)));
 
     const startBtn = h("button", { class: "btn gold", style: "margin-top:10px;" }, ["▶ Start"]);
-    startBtn.addEventListener("click", () => startKopf(range, count, pause, mode));
+    startBtn.addEventListener("click", () => startKopf(range, count, pause, mode, onlyPlusMinus));
     box.appendChild(startBtn);
     app.appendChild(box);
   }
 
-  function startKopf(range, count, pause, mode) {
+  function startKopf(range, count, pause, mode, onlyPlusMinus) {
     if (typeof speechSynthesis === "undefined") {
       alert("Sprachausgabe wird auf diesem Gerät leider nicht unterstützt.");
       return;
     }
     ensureVoices();
     const tasks = [];
-    for (let i = 0; i < count; i++) tasks.push(genKopfAufgabe(range));
+    for (let i = 0; i < count; i++) tasks.push(onlyPlusMinus ? genKopfPlusMinus(range) : genKopfAufgabe(range));
     kopfState = { tasks, index: 0, mode, pause, results: [], timers: [] };
     app.innerHTML = "";
     const card = h("div", { class: "task-card kopf-stage" });
@@ -1433,20 +1434,27 @@
     const p = progress[catId];
     return p && p.attempts >= 3 && masteryRatio(catId) < 0.7;
   }
+  // Themen laut Ankündigung der Lehrerin (28.09.2026): Kopfrechnen +/- bis 1000, Zahlen bis 10000
+  // (Stellentafel, Zahlenstrahl, Nachbarzahlen, Addieren/Subtrahieren), rechter Winkel/senkrecht/
+  // parallel. Das ist der Standard-Fokus bis zur Arbeit — bewusst OHNE Mal/Geteilt, Sachaufgaben,
+  // Kettenaufgaben, Rechteck-/Streckenaufgaben, da die Lehrerin die nicht genannt hat.
+  const EXAM_TOPIC_CATS = ["stellenwert", "zahlenstrahl", "zahlenstrahlmitte", "nachbarzahlen", "halbschriftlich", "schriftlich", "senkrechtparallel", "rechtewinkel", "parallelezeichnen"];
   let pruefungSelectedCats = null;
   let pruefungCount = 20;
   function renderPruefungIntro() {
-    if (!pruefungSelectedCats) pruefungSelectedCats = new Set(CATEGORIES.map((c) => c.id));
+    if (!pruefungSelectedCats) pruefungSelectedCats = new Set(EXAM_TOPIC_CATS);
     app.innerHTML = "";
     const box = h("div", { class: "task-card" });
     box.appendChild(h("h2", {}, ["Prüfungssimulation"]));
-    box.appendChild(h("p", { style: "color:var(--ink-2);" }, ["Wähl aus, welche Themen diesmal drankommen sollen — muss nicht jedes Mal alles sein."]));
+    box.appendChild(h("p", { style: "color:var(--ink-2);" }, ["Vorausgewählt sind genau die Themen, die die Lehrerin für die Arbeit am Donnerstag genannt hat. Du kannst die Auswahl jederzeit ändern."]));
 
     const quickRow = h("div", { class: "btn-row", style: "margin-bottom:10px;" });
     const checkboxRefs = [];
     function refreshChecks() {
       checkboxRefs.forEach(({ id, cb }) => (cb.checked = pruefungSelectedCats.has(id)));
     }
+    const examBtn = h("button", { class: "btn gold" }, ["Mathearbeit-Themen"]);
+    examBtn.addEventListener("click", () => { pruefungSelectedCats = new Set(EXAM_TOPIC_CATS); refreshChecks(); });
     const allBtn = h("button", { class: "btn secondary" }, ["Alle"]);
     allBtn.addEventListener("click", () => { pruefungSelectedCats = new Set(CATEGORIES.map((c) => c.id)); refreshChecks(); });
     const noneBtn = h("button", { class: "btn secondary" }, ["Keine"]);
@@ -1456,7 +1464,7 @@
       pruefungSelectedCats = new Set(CATEGORIES.filter((c) => c.weak || isDynamicallyWeak(c.id)).map((c) => c.id));
       refreshChecks();
     });
-    quickRow.appendChild(allBtn); quickRow.appendChild(noneBtn); quickRow.appendChild(weakBtn);
+    quickRow.appendChild(examBtn); quickRow.appendChild(allBtn); quickRow.appendChild(noneBtn); quickRow.appendChild(weakBtn);
     box.appendChild(quickRow);
 
     GROUP_ORDER.forEach((group) => {
